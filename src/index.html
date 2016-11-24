@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ionic App</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+
+  <link rel="icon" type="image/x-icon" href="assets/icon/favicon.ico">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4e8ef7">
+
+  <!-- cordova.js required for cordova apps -->
+  <script src="cordova.js"></script>
+
+
+  <!--bim stuff start-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/bimserverapiwebsocket.js"></script>-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/bimserverclient.js"></script>-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/bimserverapipromise.js"></script>-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/ifc2x3tc1.js"></script>-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/ifc4.js"></script>-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/model.js"></script>-->
+  <!--<script type="text/javascript"-->
+          <!--src="https://thisisanexperimentalserver.com/apps/bimserverjavascriptapi/js/translations_en.js"></script>-->
+
+  <!--<script>-->
+    <!--/* Generating a new version based on the current time, this way resources are never cached-->
+     <!--When building a version of BIMsurfer V2 this should be replaced by an actual version number in order-->
+     <!--To facilitate proper caching-->
+     <!--*/-->
+    <!--var version = new Date().getTime();-->
+
+    <!--// This has been moved to bimserverapi, can be removed in a day-->
+    <!--String.prototype.firstUpper = function () {-->
+      <!--return this.charAt(0).toUpperCase() + this.slice(1);-->
+    <!--}-->
+
+    <!--// Because the demo is in a subfolder compared to the BIMsurfer API, we tell require JS to use the "../" baseUrl-->
+    <!--var require = {-->
+      <!--baseUrl: "assets/",-->
+      <!--urlArgs: "bust=" + version-->
+    <!--};-->
+  <!--</script>-->
+
+  <!--<script type="text/javascript" src="assets/bimsurfer/lib/require.js"></script>-->
+  <!--<script type="text/javascript" src="assets/bimsurfer/lib/xeoengine.js"></script>-->
+
+
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,600' rel='stylesheet' type='text/css' />
+
+  <link rel="stylesheet" href="assets/bimsurfer/css/demo.css"/>
+  <link rel="stylesheet" href="assets/bimsurfer/css/apiref.css"/>
+  <link rel="stylesheet" href="assets/bimsurfer/css/tree.css"/>
+  <link rel="stylesheet" href="assets/bimsurfer/css/metadata.css"/>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+
+  <!--<script type="text/javascript" src="js/utils.js"></script>-->
+  <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>-->
+
+
+  <!--bim stuff end-->
+
+
+  <!-- un-comment this code to enable service worker
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('service worker installed'))
+        .catch(err => console.log('Error', err));
+    }
+  </script>-->
+
+  <link href="build/main.css" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- Ionic's root component and where the app will load -->
+<ion-app></ion-app>
+
+<!-- The polyfills js is generated during the build process -->
+<script src="build/polyfills.js"></script>
+
+<!-- The bundle js is generated during the build process -->
+<script src="build/main.js"></script>
+
+</body>
+</html>

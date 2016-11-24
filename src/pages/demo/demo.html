@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{title!=null?title:'Demo'}}</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div id="maincontainer">
+    <div id="topsection">
+      <h1>BIMsurfer demo</h1>
+      <div id="typeSelector{{bust}}">
+        <div>&nbsp;</div>
+      </div>
+    </div>
+    <div id="contentwrapper">
+      <div id="colmid">
+        <div id="colright">
+          <div id="col1wrap">
+            <div id="col1pad">
+              <div id="viewerContainer{{bust}}">
+              </div>
+            </div>
+          </div>
+          <div id="treeContainer{{bust}}" class="bimsurfer-static-tree">
+          </div>
+          <div id="dataContainer{{bust}}" class="bimsurfer-metadata">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="status{{bust}}"></div>
+
+  <div id='apirefContainer{{bust}}'>
+    <h1>API Reference</h1>
+  </div>
+</ion-content>
