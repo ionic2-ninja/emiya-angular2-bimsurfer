@@ -10,11 +10,22 @@ export class Api {
   private token
 
 
-  constructor(address, username, password) {
+  constructor(address, username, password?) {
     this.address = address
-    this.username = username
-    this.password = password
+
+    if (password === null || password === undefined || password === '') {
+      this.token = username
+    }
+    else {
+      this.username = username
+      this.password = password
+    }
+
     //console.log(window['require'])
+  }
+
+  public getToken = () => {
+    return this.token
   }
 
   public loadLib = () => {
@@ -35,10 +46,33 @@ export class Api {
 
 
   public login = () => {
+    console.log(this)
+    if (this.token === null || this.token === undefined)
+      return new Promise((resolve, reject) => {
+        this.client = new window['BimServerClient'](this.address);
+        //console.log('client', this.client)
+        this.client.init(() => {
+          this.client.login(this.username, this.password, () => {
+            console.log('login ok', this.client.token)
+            this.token = this.client.token
+            resolve(this.client.token)
+          }, function (error) {
+            console.error('login fail', error);
+            reject(error)
+          });
+        })
+
+      })
+    else
+      return this.loginByToken()
+  }
+
+  public loginByToken = () => {
     return new Promise((resolve, reject) => {
       this.client = new window['BimServerClient'](this.address);
+      //console.log('client', this.client)
       this.client.init(() => {
-        this.client.login(this.username, this.password, () => {
+        this.client.setToken(this.token, () => {
           console.log('login ok', this.client.token)
           this.token = this.client.token
           resolve(this.client.token)
@@ -208,7 +242,7 @@ export class Api {
           if (hasNamedArgs) {
             args = "{" + args + "}";
           }
-
+          console.log(window['bimSurfer'])
           let cmd = "bimSurfer" + bust + "." + m.name + "(" + args + ");";
           n.innerHTML += "<textarea rows=3 id='code" + i + bust + "' spellcheck=false>" + cmd + "\n</textarea>";
           window['exec_statement'] = "eval(document.getElementById(\"code" + i + bust + "\").value)"

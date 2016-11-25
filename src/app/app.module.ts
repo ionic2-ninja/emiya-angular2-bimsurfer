@@ -1,5 +1,5 @@
-import {NgModule} from '@angular/core';
-import {IonicApp, IonicModule} from 'ionic-angular';
+import { NgModule, ErrorHandler } from '@angular/core';
+import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import {MyApp} from './app.component';
 import {AboutPage} from '../pages/about/about';
 import {ContactPage} from '../pages/contact/contact';
@@ -7,6 +7,7 @@ import {HomePage} from '../pages/home/home';
 import {TabsPage} from '../pages/tabs/tabs';
 import {DemoPage} from '../pages/demo/demo';
 import {Bim} from '../services/bim/bim'
+import {Router} from 'emiya-ionic2-router'
 @NgModule({
   declarations: [
     MyApp,
@@ -28,7 +29,7 @@ import {Bim} from '../services/bim/bim'
     TabsPage,
     DemoPage
   ],
-  providers: [Bim]
+  providers: [{provide: ErrorHandler, useClass: IonicErrorHandler},Bim,Router]
 })
 export class AppModule {
 }

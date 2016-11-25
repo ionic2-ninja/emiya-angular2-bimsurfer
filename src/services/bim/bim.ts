@@ -9,6 +9,7 @@ export class Bim {
   private username;
   private password;
   private instance;
+  private token;
 
   constructor() {
     window['version'] = new Date().getTime();
@@ -23,9 +24,6 @@ export class Bim {
       baseUrl: "assets/",
       urlArgs: "bust=" + window['version']
     };
-    // this.loadScripts('assets/bimsurfer/lib/', ['require.js', 'xeoengine.js'], () => {
-    //
-    // })
   }
 
   public setLibHost = (libHost?) => {
@@ -64,10 +62,17 @@ export class Bim {
   }
 
 
-  public connect = (address, username, password) => {
+  public connect = (address, usernameOrToken, password?) => {
     return new Promise((resolve, reject) => {
       this.address = address
-      this.username = username
+      // if (this.password === null || this.password === undefined) {
+      //   this.token = username
+      // }
+      // else {
+      //   this.username = username
+      //   this.password = password
+      // }
+      this.username = usernameOrToken
       this.password = password
       if (this.libLoaded) {
         return this._connect().then((instance) => {
@@ -123,7 +128,7 @@ export class Bim {
     })
   }
 
-  private loadScript = (url, callback?, onError?, timeout = 15000) => {
+  private loadScript = (url, callback?, onError?, timeout = 30000) => {
 
     let script = document.createElement("script")
     script.type = "text/javascript";
