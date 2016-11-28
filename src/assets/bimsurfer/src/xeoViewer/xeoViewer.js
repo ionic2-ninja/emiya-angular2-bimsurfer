@@ -26,6 +26,9 @@ define([
 
         domNode.appendChild(canvas);
 
+
+
+
         // Create a Scene
         var scene = new XEO.Scene({ // http://xeoengine.org/docs/classes/Scene.html
             canvas: canvas,
@@ -350,7 +353,7 @@ define([
          * @private
          */
         this.createObject = function (modelId, roid, oid, objectId, geometryIds, type, matrix) {
-        	
+
             if (modelId) {
                 var model = models[modelId];
                 if (!model) {
@@ -378,7 +381,7 @@ define([
             if (model) {
                 model.collection.add(object);
             }
-			
+
         	// Hide objects of certain types by default
         	if (hiddenTypes.indexOf(type) !== -1) {
         		object.visibility.visible = false;
@@ -448,7 +451,7 @@ define([
 
                     self.saveReset();
                 });
-                
+
             return model;
         };
 
@@ -554,9 +557,9 @@ define([
                     object.visibility.visible = visible;
                     changed = true;
                 });
-				
+
 				var index = hiddenTypes.indexOf(type);
-				
+
 				if (index !== -1 && visible) {
 					hiddenTypes.splice(index, 1);	// remove type from array
 				} else if (index === -1 && !visible) {
@@ -719,7 +722,7 @@ define([
 
             var objectId;
             var object;
-			
+
 			for (i = 0, len = types.length; i < len; i++) {
                 var typedict = rfcTypes[types[i]] || {};
                 Object.keys(typedict).forEach(function (id) {
@@ -754,7 +757,7 @@ define([
                 object.modes.transparent = opacity < 1;
             }
         };
-		
+
 		/**
          * Sets the opacity of objects specified by IDs of IFC types.
          *
@@ -787,7 +790,7 @@ define([
 
             var objectId;
             var object;
-			
+
 			for (i = 0, len = types.length; i < len; i++) {
                 var typedict = rfcTypes[types[i]] || {};
                 Object.keys(typedict).forEach(function (id) {
@@ -810,7 +813,7 @@ define([
                 }
             }
         };
-		
+
 		this._setObjectOpacity = function (object, opacity) {
 
             var material = object.material;
@@ -922,34 +925,34 @@ define([
 
             return json;
         };
-		
-		
+
+
         /**
          * Redefines light sources.
-         * 
+         *
          * @param params Array of lights {type: "ambient"|"dir"|"point", params: {[...]}}
 		 * See http://xeoengine.org/docs/classes/Lights.html for possible params for each light type
          */
 		this.setLights = function (params) {
 			lights = params;
-			
+
 			for (var i = scene.lights.lights.length - 1; i >= 0; i--) {
 				scene.lights.lights[i].destroy();
 			}
 
 			scene.lights.lights = buildLights(lights);
 		};
-		
-		
+
+
         /**
          * Returns light sources.
-         * 
+         *
          * @returns Array of lights {type: "ambient"|"dir"|"point", params: {[...]}}
          */
 		this.getLights = function () {
 			return lights;
 		};
-		
+
 		function buildLights(lights) {
 			return lights.map(function(light) {
 				if (light.type == "ambient") {
@@ -963,7 +966,7 @@ define([
 				}
 			});
 		}
-		
+
 
         /**
          *
@@ -1343,7 +1346,7 @@ define([
         this.getSnapshot = function (params) {
             return scene.canvas.getSnapshot(params);
         };
-        
+
         /**
          Returns a list of loaded IFC entity types in the model.
 

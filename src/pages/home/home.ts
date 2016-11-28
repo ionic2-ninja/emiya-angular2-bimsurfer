@@ -82,7 +82,8 @@ export class HomePage implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    let token = decodeURIComponent(Token.get('bimToken'))
+
+     let token = decodeURIComponent(Token.get('bimToken'))
     if (token != '' && token != null && token != undefined) {
       document.getElementById('address' + this.bust)['value'] = decodeURIComponent(Token.get('bimAddress'))
       document.getElementById('username' + this.bust)['value'] = decodeURIComponent(Token.get('bimUsername'))
@@ -90,7 +91,7 @@ export class HomePage implements AfterViewInit {
       if (!this.bim.getInstance())
         this.login(decodeURIComponent(Token.get('bimAddress')), token, '')
       else {
-        this.instance=this.bim.getInstance()
+        this.instance = this.bim.getInstance()
         this.instance.getAllProjects().then((data) => {
           this.projects = data
           this.isLogging = ''
