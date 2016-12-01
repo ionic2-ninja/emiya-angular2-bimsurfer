@@ -28,10 +28,13 @@ export class DemoPage implements AfterViewInit {
       if (Token.has('bimToken'))
         this.bim.connect(decodeURIComponent(Token.get('bimAddress')), decodeURIComponent(Token.get('bimToken')), '').then((instance) => {
           this.instance = instance
-          this.instance.showDemo(this.navParams.data.poid, this.navParams.data.roid, '')
+          this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
+            this.show(ev)
+          })
+
           //alert(1)
         }).catch(() => {
-           this.router.pop()
+          this.router.pop()
           //alert(0)
         })
       else {
@@ -40,6 +43,20 @@ export class DemoPage implements AfterViewInit {
       }
     } else
       this.instance.showDemo(this.navParams.data.poid, this.navParams.data.roid, '')
+  }
+
+  public show = (ev) => {
+    ev.onModelSelect((ev) => {
+      alert(ev)
+    })
+
+    ev.getTree().then((tree) => {
+      this.instance.makeModelView(tree, document.getElementById('treeContainer' + this.bust), (n) => {
+        alert(n.id)
+        ev.setVisibility(['720899:' + n.id], false)
+      })
+    })
+
   }
 
   ionViewDidLeave = () => {

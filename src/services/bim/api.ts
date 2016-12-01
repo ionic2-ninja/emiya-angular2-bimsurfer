@@ -1,4 +1,5 @@
 import {Utils} from 'emiya-js-utils'
+import {viewControl} from './viewControl'
 
 export class Api {
   private client
@@ -39,20 +40,13 @@ export class Api {
           this.StaticTreeRenderer = StaticTreeRenderer
           this.MetaDataRenderer = MetaDataRenderer
           this.domReady = domReady
+
           resolve([BimSurfer, StaticTreeRenderer, MetaDataRenderer, domReady])
         })
       } catch (e) {
         reject(e)
       }
     })
-  }
-
-  private modelSelectListener: Array<Function> = []
-
-  public onModelSelect = (cb) => {
-    this.BimSurfer.on("selection-changed", function (selected) {
-
-    });
   }
 
 
@@ -140,6 +134,7 @@ export class Api {
       sub.style.lineHeight = '20px'
       sub.innerText = projects[c].name
       sub.value = projects[c].id
+      sub.style.whiteSpace = 'nowrap'
 
       this.makeModelView(projects[c].children, sub, onclick, false)
       if (projects[c].children && projects[c].children.length > 0) {
@@ -191,6 +186,10 @@ export class Api {
       dom.append(sub)
     }
     return dom
+  }
+
+  public setTreeSelection(dom) {
+
   }
 
 
@@ -296,6 +295,25 @@ export class Api {
 
     return tops
 
+  }
+
+  public loadModel = (poid, roid, id) => {
+    return new Promise((resolve, reject) => {
+      let bimSurfer = new this.BimSurfer({
+        domNode: id
+      });
+      bimSurfer.load({
+        bimserver: this.address,
+        token: this.token,
+        poid: poid,
+        roid: roid,
+        schema: "ifc2x3tc1" // < TODO: Deduce automatically
+      }).then((data) => {
+        resolve(new viewControl(data, bimSurfer))
+      }).catch((err) => {
+        reject(err)
+      })
+    })
   }
 
   public showDemo = (poid, roid, bust = '') => {
