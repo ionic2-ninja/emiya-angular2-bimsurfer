@@ -1,3 +1,5 @@
+import {Utils} from 'emiya-js-utils'
+
 export class Api {
   private client
   private address;
@@ -31,6 +33,7 @@ export class Api {
   public loadLib = () => {
     return new Promise((resolve, reject) => {
       try {
+
         window['require'](["bimsurfer/src/BimSurfer", "bimsurfer/src/StaticTreeRenderer", "bimsurfer/src/MetaDataRenderer", "bimsurfer/lib/domReady!"], (BimSurfer, StaticTreeRenderer, MetaDataRenderer, domReady) => {
           this.BimSurfer = BimSurfer
           this.StaticTreeRenderer = StaticTreeRenderer
@@ -42,6 +45,14 @@ export class Api {
         reject(e)
       }
     })
+  }
+
+  private modelSelectListener: Array<Function> = []
+
+  public onModelSelect = (cb) => {
+    this.BimSurfer.on("selection-changed", function (selected) {
+
+    });
   }
 
 
@@ -87,12 +98,13 @@ export class Api {
   }
 
 
-  public getAllProjects = () => {
+  public getAllProjects = (params?) => {
+    params = Utils.mergeObject(params, {
+      onlyTopLevel: false,
+      onlyActive: false
+    })
     return new Promise((resolve, reject) => {
-      this.client.call("ServiceInterface", "getAllProjects", {
-        onlyTopLevel: true,
-        onlyActive: true
-      }, (projects) => {
+      this.client.call("ServiceInterface", "getAllProjects", params, (projects) => {
         console.log('getAllProjects ok', projects)
         resolve(projects)
         //a.setAttribute("href", "demo/example_BIMServer.html?address=" + encodeURIComponent(address) + "&token=" + client.token + "&poid=" + project.oid + "&roid=" + project.lastRevisionId);
@@ -101,6 +113,189 @@ export class Api {
         reject(error)
       });
     })
+  }
+
+  public makeModelView(projects, dom?, onclick?, firstNoPaddingLeft = true) {
+    if (projects && !(projects instanceof Array))
+      projects = [projects]
+    if (!dom) {
+      dom = document.createElement('ul')
+      if (firstNoPaddingLeft)
+        dom.style.paddingLeft = '0px'
+    }
+    else if (projects && projects.length > 0) {
+      let _dom = document.createElement('ul')
+      if (firstNoPaddingLeft)
+        _dom.style.paddingLeft = '0px'
+      else
+        _dom.style.paddingLeft = '10px'
+      dom.append(_dom);
+      dom = _dom
+    }
+
+    for (let c in projects) {
+      let sub = document.createElement('li')
+      sub.style.margin = '3px'
+      sub.style.fontSize = '20px'
+      sub.style.lineHeight = '20px'
+      sub.innerText = projects[c].name
+      sub.value = projects[c].id
+
+      this.makeModelView(projects[c].children, sub, onclick, false)
+      if (projects[c].children && projects[c].children.length > 0) {
+        sub.style.listStyle = 'none'
+        sub.style.background = "url('assets/bimsurfer/images/show.jpg') no-repeat 0 0"
+        sub.style.backgroundSize = "20px 20px"
+        sub.style.textIndent = '25px';
+        (function (subdom) {
+
+          subdom.onclick = function (ev) {
+            ev.stopPropagation()
+            let _sub: any = subdom
+            do {
+              _sub = _sub.firstElementChild;
+
+              if (_sub) {
+                if (_sub.style.display != 'none') {
+                  _sub.style.display = 'none'
+                  subdom.style.listStyle = 'none'
+                  subdom.style.background = "url('assets/bimsurfer/images/hide.jpg') no-repeat 0 0"
+                  subdom.style.backgroundSize = "20px 20px"
+                } else {
+                  _sub.style.display = ''
+                  subdom.style.listStyle = 'none'
+                  subdom.style.background = "url('assets/bimsurfer/images/show.jpg') no-repeat 0 0"
+                  subdom.style.backgroundSize = "20px 20px"
+                }
+              }
+            } while (_sub)
+          }
+        })(sub)
+
+      } else {
+        sub.style.listStyle = 'none'
+
+        sub.style.background = "url('assets/bimsurfer/images/see.jpg') no-repeat 0 0";
+        (function (obj) {
+          sub.onclick = function (ev) {
+            ev.stopPropagation()
+            onclick && onclick(obj)
+            //alert(JSON.stringify(obj));
+
+          };
+        })(projects[c]);
+        sub.style.backgroundSize = "20px 20px"
+        sub.style.textIndent = '25px';
+
+      }
+      dom.append(sub)
+    }
+    return dom
+  }
+
+
+  public makeProjectView(projects, dom?, onclick?) {
+    if (projects && !(projects instanceof Array))
+      projects = [projects]
+    if (!dom)
+      dom = document.createElement('ul')
+    else if (projects && projects.length > 0) {
+      let _dom = document.createElement('ul')
+      dom.append(_dom);
+      dom = _dom
+    }
+
+    for (let c in projects) {
+      let sub = document.createElement('li')
+      sub.style.margin = '3px'
+      sub.style.fontSize = '20px'
+      sub.style.lineHeight = '20px'
+      sub.innerText = projects[c].name
+
+      this.makeProjectView(projects[c].children, sub, onclick)
+      if (projects[c].children && projects[c].children.length > 0) {
+        sub.style.listStyle = 'none'
+        sub.style.background = "url('assets/bimsurfer/images/show.jpg') no-repeat 0 0"
+        sub.style.backgroundSize = "20px 20px"
+        sub.style.textIndent = '25px';
+        (function (subdom) {
+
+          subdom.onclick = function (ev) {
+            ev.stopPropagation()
+            let _sub: any = subdom
+            do {
+              _sub = _sub.firstElementChild;
+
+              if (_sub) {
+                if (_sub.style.display != 'none') {
+                  _sub.style.display = 'none'
+                  subdom.style.listStyle = 'none'
+                  subdom.style.background = "url('assets/bimsurfer/images/hide.jpg') no-repeat 0 0"
+                  subdom.style.backgroundSize = "20px 20px"
+                } else {
+                  _sub.style.display = ''
+                  subdom.style.listStyle = 'none'
+                  subdom.style.background = "url('assets/bimsurfer/images/show.jpg') no-repeat 0 0"
+                  subdom.style.backgroundSize = "20px 20px"
+                }
+              }
+            } while (_sub)
+          }
+        })(sub)
+
+      } else {
+        sub.style.listStyle = 'none'
+        if (projects[c].lastRevisionId != -1) {
+          sub.style.background = "url('assets/bimsurfer/images/see.jpg') no-repeat 0 0";
+          (function (obj) {
+            sub.onclick = function (ev) {
+              ev.stopPropagation()
+              onclick && onclick(obj)
+              //alert(JSON.stringify(obj));
+
+            };
+          })(projects[c]);
+        }
+        else {
+          sub.style.background = "url('assets/bimsurfer/images/none.jpg') no-repeat 0 0";
+          sub.onclick = function (ev) {
+            ev.stopPropagation()
+
+          };
+        }
+        sub.style.backgroundSize = "20px 20px"
+        sub.style.textIndent = '25px';
+
+      }
+      dom.append(sub)
+    }
+    return dom
+  }
+
+  public makeProjectTree(projects, tops?) {
+    if (!tops) {
+      tops = []
+      for (let c in projects) {
+        if (projects[c].parentId == -1) {
+          tops.push(projects[c])
+        }
+      }
+    }
+    for (let c in tops) {
+      let sub = []
+
+      for (let d in tops[c].subProjects) {
+        for (let e in projects) {
+          if (projects[e].oid == tops[c].subProjects[d]) {
+            sub.push(projects[e])
+          }
+        }
+      }
+      tops[c].children = this.makeProjectTree(projects, sub)
+    }
+
+    return tops
+
   }
 
   public showDemo = (poid, roid, bust = '') => {
@@ -146,8 +341,11 @@ export class Api {
       schema: "ifc2x3tc1" // < TODO: Deduce automatically
     }).then((model) => {
       console.log(model)
-      model.getTree().then((tree) => {
 
+
+      model.getTree().then((tree) => {
+        console.log(123, tree)
+        this.makeModelView(tree, document.getElementById('modelView' + bust))
         // Build a tree view of the elements in the model. The fact that it
         // is 'static' refers to the fact that all branches are loaded and
         // rendered immediately.
@@ -170,6 +368,8 @@ export class Api {
         });
 
         domtree.on("click", (oid, selected) => {
+          console.log(oid)
+          console.log(selected)
           // Clicking an explorer node fits the view to its object and selects
           if (selected.length) {
             bimSurfer.viewFit({
@@ -226,7 +426,7 @@ export class Api {
 
         let n = document.getElementById('apirefContainer' + bust);
 
-        METHODS.forEach((m: {name, args: [{name,value}], hasResult?}, i) => {
+        METHODS.forEach((m: {name, args: [{name, value}], hasResult?}, i) => {
           n.innerHTML += "<h2>" + m.name + "()</h2>";
 
           let hasNamedArgs = false;
@@ -242,7 +442,7 @@ export class Api {
           if (hasNamedArgs) {
             args = "{" + args + "}";
           }
-          console.log(window['bimSurfer'])
+          //console.log(window['bimSurfer'])
           let cmd = "bimSurfer" + bust + "." + m.name + "(" + args + ");";
           n.innerHTML += "<textarea rows=3 id='code" + i + bust + "' spellcheck=false>" + cmd + "\n</textarea>";
           window['exec_statement'] = "eval(document.getElementById(\"code" + i + bust + "\").value)"

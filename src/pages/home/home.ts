@@ -37,6 +37,9 @@ export class HomePage implements AfterViewInit {
       this.instance = instance;
       this.instance.getAllProjects().then((data) => {
         this.projects = data
+        this.projects = this.instance.makeProjectTree(this.projects)
+        document.getElementById('projectlist' + this.bust).innerHTML = ''
+        this.instance.makeProjectView(this.projects, document.getElementById('projectlist' + this.bust), this.showDemo)
         this.isLogging = ''
         this.address = address
         this.username = username
@@ -83,7 +86,7 @@ export class HomePage implements AfterViewInit {
 
   ngAfterViewInit() {
 
-     let token = decodeURIComponent(Token.get('bimToken'))
+    let token = decodeURIComponent(Token.get('bimToken'))
     if (token != '' && token != null && token != undefined) {
       document.getElementById('address' + this.bust)['value'] = decodeURIComponent(Token.get('bimAddress'))
       document.getElementById('username' + this.bust)['value'] = decodeURIComponent(Token.get('bimUsername'))
@@ -94,6 +97,9 @@ export class HomePage implements AfterViewInit {
         this.instance = this.bim.getInstance()
         this.instance.getAllProjects().then((data) => {
           this.projects = data
+          this.projects = this.instance.makeProjectTree(this.projects)
+          document.getElementById('projectlist' + this.bust).innerHTML = ''
+          this.instance.makeProjectView(this.projects, document.getElementById('projectlist' + this.bust), this.showDemo)
           this.isLogging = ''
           this.address = decodeURIComponent(Token.get('bimAddress'))
           this.username = decodeURIComponent(Token.get('bimUsername'))
@@ -117,12 +123,12 @@ export class HomePage implements AfterViewInit {
     }
     else {
       //All my document ready code here, which doesn't work
-      document.getElementById('address' + this.bust)['value'] = 'http://122.114.175.19:8083/bimserverwar-1.5.61'
-      document.getElementById('username' + this.bust)['value'] = '158114520@qq.com'
-      document.getElementById('password' + this.bust)['value'] = '123'
-      // document.getElementById('address' + this.bust)['value'] = 'http://192.168.102.28:8085/bimserverwar-1.5.61'
-      // document.getElementById('username' + this.bust)['value'] = 'admin@admin.com'
+      // document.getElementById('address' + this.bust)['value'] = 'http://122.114.175.19:8083/bimserverwar-1.5.61'
+      // document.getElementById('username' + this.bust)['value'] = '158114520@qq.com'
       // document.getElementById('password' + this.bust)['value'] = '123'
+      document.getElementById('address' + this.bust)['value'] = 'http://192.168.102.28:8085/bimserverwar-1.5.62'
+      document.getElementById('username' + this.bust)['value'] = 'admin@admin.com'
+      document.getElementById('password' + this.bust)['value'] = '123'
     }
   }
 

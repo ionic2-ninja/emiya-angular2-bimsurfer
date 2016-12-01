@@ -5,7 +5,8 @@ define([
     "bimsurfer/src/xeoViewer/entities/bimModel",
     "bimsurfer/src/xeoViewer/entities/bimObject",
     "bimsurfer/src/xeoViewer/helpers/bimBoundaryHelper",
-    "bimsurfer/src/xeoViewer/effects/highlightEffect"
+    "bimsurfer/src/xeoViewer/effects/highlightEffect",
+    "bimsurfer/src/xeoViewer/utils/collection"
 ], function (DefaultMaterials, EventHandler) {
 
     "use strict";
@@ -26,11 +27,8 @@ define([
 
         domNode.appendChild(canvas);
 
-
-
-
         // Create a Scene
-        var scene = new XEO.Scene({ // http://xeoengine.org/docs/classes/Scene.html
+        var scene = new xeogl.Scene({ // http://xeoengine.org/docs/classes/Scene.html
             canvas: canvas,
 			transparent: true
         });
@@ -57,7 +55,7 @@ define([
 		scene.lights.lights = buildLights(lights);
 
         // Attached to all objects to fit the model inside the view volume
-        var scale = new XEO.Scale(scene, {
+        var scale = new xeogl.Scale(scene, {
             xyz: [1, 1, 1]
         });
 
@@ -69,18 +67,18 @@ define([
         camera.project.far = FAR_CLIP;
 
         // Flies cameras to objects
-        var cameraFlight = new XEO.CameraFlight(scene, { // http://xeoengine.org/docs/classes/CameraFlight.html
-            stopFOV: 45,
+        var cameraFlight = new xeogl.CameraFlightAnimation(scene, { // http://xeoengine.org/docs/classes/CameraFlightAnimation.html
+            fitFOV: 45,
             duration: 1
         });
 
         // Registers loaded xeoEngine components for easy destruction
-        var collection = new XEO.Collection(scene); // http://xeoengine.org/docs/classes/Collection.html
+        var collection = new xeogl.Collection(scene); // http://xeoengine.org/docs/classes/Collection.html
 
         // Shows a wireframe box at the given boundary
-        var boundaryHelper = new XEO.BIMBoundaryHelper(scene);
+        var boundaryHelper = new xeogl.BIMBoundaryHelper(scene);
 
-        var highlightEffect = new XEO.HighlightEffect(scene);
+        var highlightEffect = new xeogl.HighlightEffect(scene);
 
         // Models mapped to their IDs
         var models = {};
@@ -113,9 +111,9 @@ define([
         // to swap on the camera when we switch projection types
         var projections = {
 
-            persp: camera.project, // Camera has a XEO.Perspective by default
+            persp: camera.project, // Camera has a xeogl.Perspective by default
 
-            ortho: new XEO.Ortho(scene, {
+            ortho: new xeogl.Ortho(scene, {
                 scale: 1.0,
                 near: 0.1,
                 far: FAR_CLIP
@@ -177,7 +175,7 @@ define([
         // Camera control
         //-----------------------------------------------------------------------------------------------------------
 
-        var cameraControl = new XEO.BIMCameraControl(scene, {
+        var cameraControl = new xeogl.BIMCameraControl(scene, {
             camera: camera
         });
 
@@ -242,7 +240,7 @@ define([
 
             this.clear();
 
-            var geometry = new XEO.BoxGeometry(scene, {
+            var geometry = new xeogl.BoxGeometry(scene, {
                 id: "geometry.test"
             });
 
@@ -270,12 +268,12 @@ define([
             for (var i = 0; i < numEntities; i++) {
                 objectId = "object" + i;
                 oid = objectId;
-                translate = XEO.math.translationMat4c(
+                translate = xeogl.math.translationMat4c(
                     (Math.random() * size - halfSize) + centerX,
                     (Math.random() * size - halfSize) + centerY,
                     (Math.random() * size - halfSize) + centerZ);
-                scale = XEO.math.scalingMat4c(Math.random() * 32 + 0.2, Math.random() * 32 + 0.2, Math.random() * 10 + 0.2);
-                matrix = XEO.math.mulMat4(translate, scale, XEO.math.mat4());
+                scale = xeogl.math.scalingMat4c(Math.random() * 32 + 0.2, Math.random() * 32 + 0.2, Math.random() * 10 + 0.2);
+                matrix = xeogl.math.mulMat4(translate, scale, xeogl.math.mat4());
                 type = types[Math.round(Math.random() * types.length)];
                 this.createObject(modelId, roid, oid, objectId, ["test"], type, matrix);
             }
@@ -305,7 +303,7 @@ define([
          * @private
          */
         this.createGeometry = function (geometryId, positions, normals, colors, indices) {
-            var geometry = new XEO.Geometry(scene, { // http://xeoengine.org/docs/classes/Geometry.html
+            var geometry = new xeogl.Geometry(scene, { // http://xeoengine.org/docs/classes/Geometry.html
                 id: "geometry." + geometryId,
                 primitive: "triangles",
                 positions: positions,
@@ -322,7 +320,7 @@ define([
          * Creates a model.
          *
          * @param modelId
-         * @returns {XEO.BIMModel} The new model
+         * @returns {xeogl.BIMModel} The new model
          * @private
          */
         this.createModel = function (modelId) {
@@ -332,7 +330,7 @@ define([
                 return;
             }
 
-            var model = new XEO.BIMModel(scene, {});
+            var model = new xeogl.BIMModel(scene, {});
 
             models[modelId] = model;
 
@@ -353,7 +351,7 @@ define([
          * @private
          */
         this.createObject = function (modelId, roid, oid, objectId, geometryIds, type, matrix) {
-
+        	
             if (modelId) {
                 var model = models[modelId];
                 if (!model) {
@@ -368,7 +366,7 @@ define([
                 return;
             }
 
-            var object = new XEO.BIMObject(scene, {
+            var object = new xeogl.BIMObject(scene, {
                 id: objectId,
                 geometryIds: geometryIds,
                 matrix: matrix
@@ -381,7 +379,7 @@ define([
             if (model) {
                 model.collection.add(object);
             }
-
+			
         	// Hide objects of certain types by default
         	if (hiddenTypes.indexOf(type) !== -1) {
         		object.visibility.visible = false;
@@ -394,7 +392,7 @@ define([
          * Inserts an object into this viewer
          *
          * @param {String} type
-         * @param {XEO.Entity | XEO.BIMObject} object
+         * @param {xeogl.Entity | xeogl.BIMObject} object
          * @private
          */
         this._addObject = function (type, object) {
@@ -430,7 +428,7 @@ define([
 
             this.clear();
 
-            var model = new XEO.Model(scene, {
+            var model = new xeogl.Model(scene, {
                 src: src
             });
 
@@ -444,14 +442,14 @@ define([
                     // TODO: viewFit, but boundaries not yet ready on Model Entities
 
                     model.collection.iterate(function (component) {
-                        if (component.isType("XEO.Entity")) {
+                        if (component.isType("xeogl.Entity")) {
                             self._addObject("DEFAULT", component);
                         }
                     });
 
                     self.saveReset();
                 });
-
+                
             return model;
         };
 
@@ -557,9 +555,9 @@ define([
                     object.visibility.visible = visible;
                     changed = true;
                 });
-
+				
 				var index = hiddenTypes.indexOf(type);
-
+				
 				if (index !== -1 && visible) {
 					hiddenTypes.splice(index, 1);	// remove type from array
 				} else if (index === -1 && !visible) {
@@ -722,7 +720,7 @@ define([
 
             var objectId;
             var object;
-
+			
 			for (i = 0, len = types.length; i < len; i++) {
                 var typedict = rfcTypes[types[i]] || {};
                 Object.keys(typedict).forEach(function (id) {
@@ -757,7 +755,7 @@ define([
                 object.modes.transparent = opacity < 1;
             }
         };
-
+		
 		/**
          * Sets the opacity of objects specified by IDs of IFC types.
          *
@@ -790,7 +788,7 @@ define([
 
             var objectId;
             var object;
-
+			
 			for (i = 0, len = types.length; i < len; i++) {
                 var typedict = rfcTypes[types[i]] || {};
                 Object.keys(typedict).forEach(function (id) {
@@ -813,7 +811,7 @@ define([
                 }
             }
         };
-
+		
 		this._setObjectOpacity = function (object, opacity) {
 
             var material = object.material;
@@ -857,7 +855,7 @@ define([
                     eye: params.eye,
                     look: params.target,
                     up: params.up,
-                    stopFOV: params.stopFOV,
+                    fitFOV: params.fitFOV,
                     duration: params.duration
                 });
 
@@ -925,48 +923,48 @@ define([
 
             return json;
         };
-
-
+		
+		
         /**
          * Redefines light sources.
-         *
+         * 
          * @param params Array of lights {type: "ambient"|"dir"|"point", params: {[...]}}
 		 * See http://xeoengine.org/docs/classes/Lights.html for possible params for each light type
          */
 		this.setLights = function (params) {
 			lights = params;
-
+			
 			for (var i = scene.lights.lights.length - 1; i >= 0; i--) {
 				scene.lights.lights[i].destroy();
 			}
 
 			scene.lights.lights = buildLights(lights);
 		};
-
-
+		
+		
         /**
          * Returns light sources.
-         *
+         * 
          * @returns Array of lights {type: "ambient"|"dir"|"point", params: {[...]}}
          */
 		this.getLights = function () {
 			return lights;
 		};
-
+		
 		function buildLights(lights) {
 			return lights.map(function(light) {
 				if (light.type == "ambient") {
-					return new XEO.AmbientLight(scene, light.params);
+					return new xeogl.AmbientLight(scene, light.params);
 				} else if (light.type == "dir") {
-					return new XEO.DirLight(scene, light.params);
+					return new xeogl.DirLight(scene, light.params);
 				} else if (light.type == "point") {
-					return new XEO.PointLight(scene, light.params);
+					return new xeogl.PointLight(scene, light.params);
 				} else {
 					console.log("Unknown light type: " + type);
 				}
 			});
 		}
-
+		
 
         /**
          *
@@ -991,20 +989,12 @@ define([
 
             if (params.animate) {
 
-                // Show the boundary we are flying to
-                boundaryHelper.geometry.aabb = aabb;
-                boundaryHelper.visibility.visible = true;
-
                 cameraFlight.flyTo({
                         aabb: aabb,
-                        stopFOV: params.stopFOV,
+                        fitFOV: params.fitFOV,
                         duration: params.duration
                     },
                     function () {
-
-                        // Hide the boundary again
-                        boundaryHelper.visibility.visible = false;
-
                         if (ok) {
                             ok();
                         }
@@ -1017,7 +1007,7 @@ define([
 
                 cameraFlight.jumpTo({
                     aabb: aabb,
-                    stopFOV: params.stopFOV
+                    fitFOV: params.fitFOV
                 });
             }
         };
@@ -1120,8 +1110,8 @@ define([
 
                 aabb = worldBoundary.aabb;
 
-                min = aabb.min;
-                max = aabb.max;
+                min = aabb.slice(0);
+                max = aabb.slice(3);
 
                 if (min[0] < xmin) {
                     xmin = min[0];
@@ -1148,14 +1138,14 @@ define([
                 }
             }
 
-            var result = XEO.math.AABB3();
+            var result = xeogl.math.AABB3();
 
-            result.min[0] = xmin;
-            result.min[1] = ymin;
-            result.min[2] = zmin;
-            result.max[0] = xmax;
-            result.max[1] = ymax;
-            result.max[2] = zmax;
+            result[0+0] = xmin;
+            result[1+0] = ymin;
+            result[2+0] = zmin;
+            result[0+3] = xmax;
+            result[1+3] = ymax;
+            result[2+3] = zmax;
 
             return result;
         }
@@ -1303,9 +1293,9 @@ define([
          * @param params
          * @param {Boolean} [params.mouseRayPick=true] When true, camera flies to orbit each clicked point, otherwise
          * it flies to the boundary of the object that was clicked on.
-         * @param [params.viewFitStopFOV=45] {Number} How much of field-of-view, in degrees, that a target {{#crossLink "Entity"}}{{/crossLink}} or its AABB should
-         * fill the canvas when calling {{#crossLink "CameraFlight/flyTo:method"}}{{/crossLink}} or {{#crossLink "CameraFlight/jumpTo:method"}}{{/crossLink}}.
-         * @param [params.viewFitDuration=1] {Number} Flight duration, in seconds, when calling {{#crossLink "CameraFlight/flyTo:method"}}{{/crossLink}}.
+         * @param [params.viewFitFOV=45] {Number} How much of field-of-view, in degrees, that a target {{#crossLink "Entity"}}{{/crossLink}} or its AABB should
+         * fill the canvas when calling {{#crossLink "CameraFlightAnimation/flyTo:method"}}{{/crossLink}} or {{#crossLink "CameraFlightAnimation/jumpTo:method"}}{{/crossLink}}.
+         * @param [params.viewFitDuration=1] {Number} Flight duration, in seconds, when calling {{#crossLink "CameraFlightAnimation/flyTo:method"}}{{/crossLink}}.
          */
         this.setConfigs = function (params) {
 
@@ -1315,8 +1305,8 @@ define([
                 cameraControl.mousePickEntity.rayPick = params.mouseRayPick;
             }
 
-            if (params.viewFitStopFOV != undefined) {
-                cameraFlight.stopFOV = params.viewFitStopFOV;
+            if (params.viewFitFOV != undefined) {
+                cameraFlight.fitFOV = params.viewFitFOV;
             }
 
             if (params.viewFitDuration != undefined) {
@@ -1346,7 +1336,7 @@ define([
         this.getSnapshot = function (params) {
             return scene.canvas.getSnapshot(params);
         };
-
+        
         /**
          Returns a list of loaded IFC entity types in the model.
 

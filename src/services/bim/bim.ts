@@ -46,7 +46,7 @@ export class Bim {
     })
     let lib1 = new Promise((resolve, reject) => {
       try {
-        this.loadScripts('assets/bimsurfer/lib/', ['require.js', 'xeoengine.js'], () => {
+        this.loadScripts('assets/bimsurfer/lib/', ['require.js', 'xeogl.js'], () => {
           resolve()
         }, (err) => {
           reject(err)
@@ -105,6 +105,7 @@ export class Bim {
         "model.js",
         "bimserverapiwebsocket.js",
         "bimserverapipromise.js",
+        "geometry.js",
         "ifc2x3tc1.js",
         "ifc4.js",
         "translations_en.js",
@@ -140,25 +141,25 @@ export class Bim {
           script['onreadystatechange'] = null;
           clearTimeout(timer)
           timer = null
-          callback && callback();
+          callback && callback(200, url);
         }
       };
     } else { //Others
       script.onload = () => {
         clearTimeout(timer)
         timer = null
-        callback && callback();
+        callback && callback(200, url);
       };
       script.onerror = (err) => {
         clearTimeout(timer)
         timer = null
-        onError && onError(err)
+        onError && onError(err, url)
       }
     }
 
     if (timeout > 0)
       timer = setTimeout(() => {
-        onError && onError()
+        onError && onError('timeout', url)
         timer = null
       }, timeout)
     script.src = url;
@@ -178,6 +179,7 @@ export class Bim {
     recursive()
 
   }
+
 }
 
 

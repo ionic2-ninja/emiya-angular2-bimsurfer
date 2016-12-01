@@ -25,8 +25,6 @@
             disabled="{{isLogging}}">login
     </button>
   </div>
-  <ul>
-    <li *ngFor="let c of projects" (click)="showDemo(c)">{{c.name}}</li>
-  </ul>
+  <div id="projectlist{{bust}}"></div>
 
 </ion-content>

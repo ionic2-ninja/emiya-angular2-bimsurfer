@@ -7,15 +7,15 @@ define(function () {
      Controls camera with mouse and keyboard, handles selection of entities and rotation point.
 
      */
-    XEO.BIMCameraControl = XEO.Component.extend({
+    xeogl.BIMCameraControl = xeogl.Component.extend({
 
-        type: "XEO.BIMCameraControl",
+        type: "xeogl.BIMCameraControl",
 
         _init: function (cfg) {
 
             var self = this;
 
-            var math = XEO.math;
+            var math = xeogl.math;
 
             // Configs
 
@@ -115,7 +115,7 @@ define(function () {
                 });
                 return function () {
                     if (sceneSizeDirty) {
-                        diag = math.getAABBDiag(scene.worldBoundary.aabb);
+                        diag = math.getAABB3Diag(scene.worldBoundary.aabb);
                     }
                     return diag;
                 };
@@ -135,24 +135,30 @@ define(function () {
 
             // Rotation point indicator
 
-            var pickHelper = this.create(XEO.Entity, {
-                geometry: this.create(XEO.SphereGeometry, {
+            var pickHelper = this.create({
+                type: "xeogl.Entity",
+                geometry: this.create({
+                    type: "xeogl.SphereGeometry",
                     radius: 1.0
                 }),
-                material: this.create(XEO.PhongMaterial, {
+                material: this.create({
+                    type: "xeogl.PhongMaterial",
                     diffuse: [0, 0, 0],
                     ambient: [0, 0, 0],
                     specular: [0, 0, 0],
                     emissive: [1.0, 1.0, 0.6], // Glowing
                     lineWidth: 4
                 }),
-                transform: this.create(XEO.Translate, {
+                transform: this.create({
+                    type: "xeogl.Translate",
                     xyz: [0, 0, 0]
                 }),
-                visibility: this.create(XEO.Visibility, {
+                visibility: this.create({
+                    type: "xeogl.Visibility",
                     visible: false // Initially invisible
                 }),
-                modes: this.create(XEO.Modes, {
+                modes: this.create({
+                    type: "xeogl.Modes",
                     collidable: false // This helper has no collision boundary of its own
                 })
             });
@@ -340,6 +346,23 @@ define(function () {
             }
 
             var tempVecHover = math.vec3();
+            
+            var updateHoverDistanceAndCursor = function(canvasPos) {
+                var hit = scene.pick({
+                    canvasPos: canvasPos || lastCanvasPos,
+                    pickSurface: true
+                });
+
+                if (hit) {
+                    setCursor("pointer", true);
+                    if (hit.worldPos) {
+                        // TODO: This should be somehow hit.viewPos.z, but doesn't seem to be
+                        lastHoverDistance = math.lenVec3(math.subVec3(hit.worldPos, view.eye, tempVecHover));
+                    }
+                } else {
+                    setCursor("auto", true);
+                }
+            };
 
             input.on("mousemove",
                 function (canvasPos) {
@@ -354,21 +377,8 @@ define(function () {
 
                     if (!mouseDown) {
 
-                        var hit = scene.pick({
-                            canvasPos: canvasPos,
-                            pickSurface: true
-                        });
-
-                        if (hit) {
-                            setCursor("pointer", true);
-                            if (hit.worldPos) {
-                                // TODO: This should be somehow hit.viewPos.z, but doesn't seem to be
-                                lastHoverDistance = math.lenVec3(math.subVec3(hit.worldPos, view.eye, tempVecHover));
-                            }
-                        } else {
-                            setCursor("auto", true);
-                        }
-
+                        updateHoverDistanceAndCursor(canvasPos);
+                        
                         lastCanvasPos[0] = canvasPos[0];
                         lastCanvasPos[1] = canvasPos[1];
 
@@ -642,7 +652,7 @@ define(function () {
                                 view.eye = math.addVec3(eye, eyePivotVec, tempVec3c);
                                 view.look = math.addVec3(look, eyePivotVec, tempVec3c);
 
-                                if (project.isType("XEO.Ortho")) {
+                                if (project.isType("xeogl.Ortho")) {
                                     project.scale += delta * orthoScaleRate;
                                 }
 
@@ -692,6 +702,8 @@ define(function () {
                             newTarget = true;
                         }
                     });
+                    
+                var updateTimeout = null;
 
                 scene.on("tick",
                     function (e) {
@@ -707,11 +719,19 @@ define(function () {
                         if (flying) {
                             return;
                         }
+                        
+                        if (updateTimeout) {
+                            clearTimeout(updateTimeout);
+                        }
+                        updateTimeout = setTimeout(function() {
+                            updateHoverDistanceAndCursor();
+                            updateTimeout = null;
+                        }, 50);
 
                         var zoomTimeInSeconds = 0.2;
                         var viewDistance = getSceneDiagSize();
                         if (lastHoverDistance) {
-                            viewDistance = viewDistance * 0.1 + 0.9 * lastHoverDistance;
+                            viewDistance = viewDistance * 0.02 + lastHoverDistance;
                         }
 
                         var tickDeltaSecs = e.deltaTime / 1000.0;
@@ -739,7 +759,7 @@ define(function () {
                                 var eye = view.eye;
                                 var look = view.look;
                                 
-                                math.mulVec3Scalar(XEO.math.transposeMat4(view.matrix).slice(8), f, eyePivotVec);
+                                math.mulVec3Scalar(xeogl.math.transposeMat4(view.matrix).slice(8), f, eyePivotVec);
                                 math.addVec3(eye, eyePivotVec, newEye);
                                 math.addVec3(look, eyePivotVec, newLook);
 
@@ -752,7 +772,7 @@ define(function () {
                                     view.eye = newEye;
                                     view.look = newLook;
 
-                                    if (project.isType("XEO.Ortho")) {
+                                    if (project.isType("xeogl.Ortho")) {
                                         project.scale += delta * orthoScaleRate;
                                     }
                                 // }
@@ -770,7 +790,8 @@ define(function () {
 
             (function () {
 
-                var flight = self.create(XEO.CameraFlight, {
+                var flight = self.create({
+                    type:"xeogl.CameraFlightAnimation",
                     camera: camera,
                     duration: 1.0 // One second to fly to each new target
                 });
@@ -818,9 +839,9 @@ define(function () {
                         var boundary = scene.worldBoundary;
                         var aabb = boundary.aabb;
                         var center = boundary.center;
-                        var diag = math.getAABBDiag(aabb);
-                        var stopFOV = 55;
-                        var dist = Math.abs((diag) / Math.tan(stopFOV / 2));
+                        var diag = math.getAABB3Diag(aabb);
+                        var fitFOV = 55;
+                        var dist = Math.abs((diag) / Math.tan(fitFOV/2));
 
                         switch (keyCode) {
 
