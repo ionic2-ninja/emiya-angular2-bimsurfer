@@ -3,7 +3,9 @@ import {Api} from './api';
 
 @Injectable()
 export class Bim {
-  private libHost = 'https://thisisanexperimentalserver.com'
+  public libHost = 'https://thisisanexperimentalserver.com'
+  public localLibHost = 'bimsurfer/lib/'
+  public localLibPrefix = 'assets/'
   private libLoaded = false
   private address;
   private username;
@@ -21,7 +23,7 @@ export class Bim {
 
     // Because the demo is in a subfolder compared to the BIMsurfer API, we tell require JS to use the "../" baseUrl
     window['require'] = {
-      baseUrl: "assets/",
+      baseUrl: this.localLibPrefix,
       urlArgs: "bust=" + window['version']
     };
   }
@@ -46,7 +48,7 @@ export class Bim {
     })
     let lib1 = new Promise((resolve, reject) => {
       try {
-        this.loadScripts('assets/bimsurfer/lib/', ['require.js', 'xeogl.js'], () => {
+        this.loadScripts(this.localLibPrefix + this.localLibHost, ['require.js', 'xeogl.js'], () => {
           resolve()
         }, (err) => {
           reject(err)
