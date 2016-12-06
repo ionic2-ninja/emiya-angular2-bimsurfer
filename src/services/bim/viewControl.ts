@@ -4,11 +4,11 @@ export class viewControl {
   private bimSurfer
   private model
   private modelSelectListener: Array<Function> = []
-  public MetaDataRenderer
+  private MetaDataRenderer
 
   constructor(model, bimSurfer, MetaDataRenderer) {
     this.bimSurfer = bimSurfer
-    this.model = Utils.deepCopy(model)
+    this.model = model
     this.MetaDataRenderer = MetaDataRenderer
     this.bimSurfer.on("selection-changed", (selected) => {
 
@@ -20,6 +20,10 @@ export class viewControl {
 
   public getModel = () => {
     return this.model
+  }
+
+  public getMetaDataRenderer = () => {
+    return this.MetaDataRenderer
   }
 
   public getById = (id, cb) => {

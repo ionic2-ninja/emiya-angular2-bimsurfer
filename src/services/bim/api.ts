@@ -387,6 +387,7 @@ export class Api {
         }))
         bimSurfer.on("selection-changed", (selected) => {
           domtree.setSelected(selected, domtree.SELECT_EXCLUSIVE);
+          console.log(selected)
           metadata.setSelected(selected);
         });
 
