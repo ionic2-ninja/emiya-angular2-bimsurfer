@@ -123,4 +123,8 @@ export class viewControl {
     return obj
   }
 
+  public getType = (id) => {
+    return this.model.model.objects[id].getType()
+  }
+
 }
