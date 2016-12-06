@@ -83,4 +83,44 @@ export class viewControl {
     }
   }
 
+  public getPSet = (id, cb) => {
+    let obj = this.model.model.objects[id]
+    obj.getIsDefinedBy((isDefinedBy) => {
+      if (isDefinedBy.getType() == "IfcRelDefinesByProperties") {
+        isDefinedBy.getRelatingPropertyDefinition((pset) => {
+          if (pset.getType() == "IfcPropertySet") {
+            pset.getHasProperties((prop) => {
+              let count = 0, name, value
+              prop.getName((_name) => {
+                ++count
+                name = _name
+                if (count == 2)
+                  cb && cb(name, value, prop);
+              });
+              prop.getNominalValue((_value) => {
+                ++count
+                value = _value._v
+                if (count == 2)
+                  cb && cb(name, value, prop);
+              });
+            })
+          }
+        });
+      }
+    })
+    return obj
+  }
+
+  public getObject = (id) => {
+    return this.model.model.objects[id]
+  }
+
+  public getAttributes = (id, cb) => {
+    let obj = this.model.model.objects[id];
+    ["GlobalId", "Name", "OverallWidth", "OverallHeight", "Tag"].forEach(function (k) {
+      cb && cb(k, obj['get' + k](), obj)
+    });
+    return obj
+  }
+
 }

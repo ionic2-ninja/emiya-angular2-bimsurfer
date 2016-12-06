@@ -51,7 +51,7 @@ export class Api {
 
 
   public login = () => {
-    console.log(this)
+
     if (this.token === null || this.token === undefined)
       return new Promise((resolve, reject) => {
         this.client = new window['BimServerClient'](this.address);
@@ -73,8 +73,10 @@ export class Api {
   }
 
   public loginByToken = () => {
+
     return new Promise((resolve, reject) => {
       this.client = new window['BimServerClient'](this.address);
+
       //console.log('client', this.client)
       this.client.init(() => {
         this.client.setToken(this.token, () => {
@@ -89,6 +91,10 @@ export class Api {
 
     })
 
+  }
+
+  public logout = (cb?) => {
+    this.client && this.client.logout && this.client.logout(cb)
   }
 
 

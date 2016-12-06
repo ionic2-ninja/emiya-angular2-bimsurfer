@@ -30,6 +30,12 @@ export class DemoPage implements AfterViewInit {
           this.instance = instance
           this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
             this.show(ev)
+            setTimeout(() => {
+              ev.getAttributes('9371822', (w, b, c) => {
+                console.log(122222222233, w + '/' + b)
+              })
+            }, 2000)
+
           })
 
           //alert(1)

@@ -36,10 +36,9 @@ export class Bim {
   private init = () => {
     let lib0 = new Promise((resolve, reject) => {
       try {
-        this.loadScripts(this.libHost + '/apps/bimserverjavascriptapi/js/', ['bimserverapiwebsocket.js', 'bimserverclient.js', 'bimserverapipromise.js', 'ifc2x3tc1.js', 'ifc4.js', 'model.js', 'translations_en.js'], () => {
-
+        this.loadScripts(this.libHost + '/apps/bimserverjavascriptapi/js/', ['bimserverapiwebsocket.js', 'bimserverclient.js', 'bimserverapipromise.js', 'ifc2x3tc1.js', 'ifc4.js', 'model.js', 'translations_en.js']).then(() => {
           resolve()
-        }, (err) => {
+        }).catch((err) => {
           reject(err)
         })
       } catch (e) {
@@ -48,9 +47,9 @@ export class Bim {
     })
     let lib1 = new Promise((resolve, reject) => {
       try {
-        this.loadScripts(this.localLibPrefix + this.localLibHost, ['require.js', 'xeogl.js'], () => {
+        this.loadScripts(this.localLibPrefix + this.localLibHost, ['require.js', 'xeogl.js']).then(() => {
           resolve()
-        }, (err) => {
+        }).catch((err) => {
           reject(err)
         })
       } catch (e) {
@@ -111,8 +110,9 @@ export class Bim {
         "ifc2x3tc1.js",
         "ifc4.js",
         "translations_en.js",
-      ], () => {
+      ]).then(() => {
         let instance = new Api(this.address, this.username, this.password);
+
         instance.login().then(() => {
           instance.loadLib().then(() => {
             this.instance = instance
@@ -125,60 +125,66 @@ export class Bim {
           this.instance = null
           reject(err)
         })
-      }, (err) => {
+      }).catch((err) => {
         reject(err)
       })
     })
   }
 
-  private loadScript = (url, callback?, onError?, timeout = 30000) => {
+  private loadScript = (url, timeout = 30000) => {
+    return new Promise((resolve, reject) => {
+      let script = document.createElement("script")
+      script.type = "text/javascript";
+      let timer;
 
-    let script = document.createElement("script")
-    script.type = "text/javascript";
-    let timer;
-
-    if (script['readyState']) { //IE
-      script['onreadystatechange'] = () => {
-        if (script['readyState'] == "loaded" || script['readyState'] == "complete") {
-          script['onreadystatechange'] = null;
+      if (script['readyState']) { //IE
+        script['onreadystatechange'] = () => {
+          if (script['readyState'] == "loaded" || script['readyState'] == "complete") {
+            script['onreadystatechange'] = null;
+            clearTimeout(timer)
+            timer = null
+            reject({url: url, msg: 404})
+          }
+        };
+      } else { //Others
+        script.onload = (code) => {
           clearTimeout(timer)
           timer = null
-          callback && callback(200, url);
+          resolve({url: url, msg: code})
+        };
+        script.onerror = (err) => {
+          clearTimeout(timer)
+          timer = null
+          reject({url: url, msg: err})
         }
-      };
-    } else { //Others
-      script.onload = () => {
-        clearTimeout(timer)
-        timer = null
-        callback && callback(200, url);
-      };
-      script.onerror = (err) => {
-        clearTimeout(timer)
-        timer = null
-        onError && onError(err, url)
       }
-    }
 
-    if (timeout > 0)
-      timer = setTimeout(() => {
-        onError && onError('timeout', url)
-        timer = null
-      }, timeout)
-    script.src = url;
-    document.getElementsByTagName("head")[0].appendChild(script);
+      if (timeout > 0)
+        timer = setTimeout(() => {
+          reject({url: url, msg: 400})
+          timer = null
+        }, timeout)
+      script.src = url;
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })
   }
 
-  private loadScripts = (baseAddress, filenames, callback?, onError?, timeout?) => {
+  private loadScripts = (baseAddress = '', filenames, timeout?) => {
     let counter = filenames.length;
     let index = 0
+    let list = []
+    for (let c in filenames)
+      list.push(this.loadScript(baseAddress + filenames[c]), timeout)
 
-    let recursive = () => {
-      if (index < counter)
-        this.loadScript(baseAddress + filenames[index++], recursive, onError, timeout)
-      else if (callback)
-        callback()
-    }
-    recursive()
+    return Promise.all(list)
+
+    //   let recursive = () => {
+    //     if (index < counter)
+    //       this.loadScript(baseAddress + filenames[index++], recursive, onError, timeout)
+    //     else if (callback)
+    //       callback()
+    //   }
+    // recursive()
 
   }
 
