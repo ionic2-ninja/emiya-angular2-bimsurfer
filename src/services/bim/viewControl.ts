@@ -4,10 +4,12 @@ export class viewControl {
   private bimSurfer
   private model
   private modelSelectListener: Array<Function> = []
+  public MetaDataRenderer
 
-  constructor(model, bimSurfer) {
+  constructor(model, bimSurfer, MetaDataRenderer) {
     this.bimSurfer = bimSurfer
     this.model = Utils.deepCopy(model)
+    this.MetaDataRenderer = MetaDataRenderer
     this.bimSurfer.on("selection-changed", (selected) => {
 
       for (let c in this.modelSelectListener) {
@@ -17,8 +19,18 @@ export class viewControl {
   }
 
   public getModel = () => {
-    return Utils.deepCopy(this.model)
+    return this.model
   }
+
+  public getById = (id, cb) => {
+    return this.model.model.get(id, cb)
+  }
+
+  // public getMetaDataSelected = () => {
+  //   let metadata = new this.MetaDataRenderer({
+  //     domNode: 'dataContainer' + bust
+  //   });
+  // }
 
   public getTree = () => {
     return this.model.getTree()
@@ -43,6 +55,14 @@ export class viewControl {
 
   public setSelectionState = (ids, selected = true) => {
     return this.bimSurfer.setSelectionState({ids: ids, selected: selected});
+  }
+
+  public setSelection = (ids, selected = true, clear = true) => {
+    return this.bimSurfer.setSelection({
+      ids: ids,
+      clear: clear,
+      selected: selected
+    });
   }
 
   public reset = (params = {cameraPosition: true}) => {

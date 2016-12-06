@@ -309,7 +309,7 @@ export class Api {
         roid: roid,
         schema: "ifc2x3tc1" // < TODO: Deduce automatically
       }).then((data) => {
-        resolve(new viewControl(data, bimSurfer))
+        resolve(new viewControl(data, bimSurfer, this.MetaDataRenderer))
       }).catch((err) => {
         reject(err)
       })
@@ -379,7 +379,12 @@ export class Api {
           domNode: 'dataContainer' + bust
         });
         metadata.addModel({name: "", id: roid, model: model});
-
+        console.log(123, metadata)
+        console.log(321, model)
+        console.log(model.model.get('43188906', function (w, a, b) {
+          console.log(w)
+          console.log(b)
+        }))
         bimSurfer.on("selection-changed", (selected) => {
           domtree.setSelected(selected, domtree.SELECT_EXCLUSIVE);
           metadata.setSelected(selected);
