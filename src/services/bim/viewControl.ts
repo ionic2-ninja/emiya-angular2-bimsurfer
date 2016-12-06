@@ -118,7 +118,7 @@ export class viewControl {
   public getAttributes = (id, cb) => {
     let obj = this.model.model.objects[id];
     ["GlobalId", "Name", "OverallWidth", "OverallHeight", "Tag"].forEach(function (k) {
-      cb && cb(k, obj['get' + k](), obj)
+      obj['get' + k] && (cb && cb(k, obj['get' + k](), obj))
     });
     return obj
   }
