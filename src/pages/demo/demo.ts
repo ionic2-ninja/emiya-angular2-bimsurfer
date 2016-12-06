@@ -24,6 +24,7 @@ export class DemoPage implements AfterViewInit {
 
   ngAfterViewInit() {
     //All my document ready code here, which doesn't work
+
     if (!this.instance) {
       if (Token.has('bimToken'))
         this.bim.connect(decodeURIComponent(Token.get('bimAddress')), decodeURIComponent(Token.get('bimToken')), '').then((instance) => {
@@ -53,12 +54,12 @@ export class DemoPage implements AfterViewInit {
 
   public show = (ev) => {
     ev.onModelSelect((ev) => {
-      alert(ev)
+      //alert(ev)
     })
 
     ev.getTree().then((tree) => {
       this.instance.makeModelView(tree, document.getElementById('treeContainer' + this.bust), (n) => {
-        alert(n.id)
+        //alert(n.id)
         ev.setVisibility(['720899:' + n.id], false)
       })
     })

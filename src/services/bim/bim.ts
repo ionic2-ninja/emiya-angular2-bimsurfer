@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Api} from './api';
-
+import {Utils} from 'emiya-js-utils'
 @Injectable()
 export class Bim {
   public libHost = 'https://thisisanexperimentalserver.com'
@@ -26,6 +26,8 @@ export class Bim {
       baseUrl: this.localLibPrefix,
       urlArgs: "bust=" + window['version']
     };
+    window['deepCopy'] = Utils.deepCopy
+    window['mergeObject'] = Utils.mergeObject
   }
 
   public setLibHost = (libHost?) => {
@@ -47,7 +49,7 @@ export class Bim {
     })
     let lib1 = new Promise((resolve, reject) => {
       try {
-        this.loadScripts(this.localLibPrefix + this.localLibHost, ['require.js', 'xeogl.js']).then(() => {
+        this.loadScripts(this.localLibPrefix + this.localLibHost, ['touch.js','require.js', 'xeogl.js']).then(() => {
           resolve()
         }).catch((err) => {
           reject(err)
