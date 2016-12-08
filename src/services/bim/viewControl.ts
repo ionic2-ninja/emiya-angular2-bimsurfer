@@ -30,6 +30,10 @@ export class viewControl {
     return this.model.model.get(id, cb)
   }
 
+  public getbBimSurfer = () => {
+    return this.bimSurfer
+  }
+
   // public getMetaDataSelected = () => {
   //   let metadata = new this.MetaDataRenderer({
   //     domNode: 'dataContainer' + bust

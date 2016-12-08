@@ -34,12 +34,15 @@ export class HomePage implements AfterViewInit {
     if (password == null)
       password = document.getElementById('password' + this.bust)['value']
     this.bim.connect(address, username, password).then((instance) => {
+        //alert(123)
       this.instance = instance;
       this.instance.getAllProjects().then((data) => {
+
         this.projects = data
-        this.projects = this.instance.makeProjectTree(this.projects)
-        document.getElementById('projectlist' + this.bust).innerHTML = ''
-        this.instance.makeProjectView(this.projects, document.getElementById('projectlist' + this.bust), this.showDemo)
+        //this.projects = this.instance.makeProjectTree(this.projects)
+        alert(JSON.stringify(this.projects))
+        //document.getElementById('projectlist' + this.bust).innerHTML = ''
+        //this.instance.makeProjectView(this.projects, document.getElementById('projectlist' + this.bust), this.showDemo)
         this.isLogging = ''
         this.address = address
         this.username = username
@@ -65,7 +68,8 @@ export class HomePage implements AfterViewInit {
         Token.delete('bimPassword')
         Token.delete('bimToken')
       })
-    }).catch(() => {
+    }).catch((err) => {
+        alert(JSON.stringify(err))
       this.isLogging = ''
       this.address = null
       this.username = null
@@ -81,6 +85,7 @@ export class HomePage implements AfterViewInit {
   }
 
   showDemo = (obj) => {
+    alert(JSON.stringify(obj))
     this.router.push(DemoPage, {poid: obj.oid, roid: obj.lastRevisionId, name: obj.name})
   }
 

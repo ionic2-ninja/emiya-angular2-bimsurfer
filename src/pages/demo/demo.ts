@@ -48,8 +48,21 @@ export class DemoPage implements AfterViewInit {
         //alert(2)
         this.router.pop()
       }
-    } else
-      this.instance.showDemo(this.navParams.data.poid, this.navParams.data.roid, '')
+    } else {
+      //this.instance.showDemo(this.navParams.data.poid, this.navParams.data.roid, '')
+      setTimeout(()=>{
+        this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
+          this.show(ev)
+          setTimeout(() => {
+            ev.getAttributes('9371822', (w, b, c) => {
+              console.log(122222222233, w + '/' + b)
+            })
+          }, 2000)
+
+        })
+      },2000)
+
+    }
   }
 
   public show = (ev) => {
@@ -58,10 +71,12 @@ export class DemoPage implements AfterViewInit {
     })
 
     ev.getTree().then((tree) => {
-      this.instance.makeModelView(tree, document.getElementById('treeContainer' + this.bust), (n) => {
-        //alert(n.id)
-        ev.setVisibility(['720899:' + n.id], false)
-      })
+      var a =new window['ModelTreeView'](tree, document.getElementById('treeContainer' + this.bust),ev.getbBimSurfer(),this.navParams.data.roid)
+      a.show()
+      // this.instance.makeModelView(tree, document.getElementById('treeContainer' + this.bust), (n) => {
+      //   //alert(n.id)
+      //   ev.setVisibility(['720899:' + n.id], false)
+      // })
     })
 
   }

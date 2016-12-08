@@ -15472,10 +15472,15 @@ var Canvas2Image = (function () {
     },
 
     _getElementXY: function (e) {
-      var x = 0, y = 0;
+      var x = 0, y = 0, org = e;
       while (e) {
-        x += (e.offsetLeft - e.scrollLeft);
-        y += (e.offsetTop - e.scrollTop);
+        if (org != e) {
+          x += (e.offsetLeft - e.scrollLeft);
+          y += (e.offsetTop - e.scrollTop);
+        } else {
+          x += (e.offsetLeft );
+          y += (e.offsetTop );
+        }
         e = e.offsetParent;
       }
       // var dom=e
