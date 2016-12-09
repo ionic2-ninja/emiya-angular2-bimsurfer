@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
+
 import {Api} from './api';
 import {Utils} from 'emiya-js-utils'
-@Injectable()
+
 export class Bim {
   public libHost = 'https://thisisanexperimentalserver.com'
   public localLibHost = 'bimsurfer/lib/'
