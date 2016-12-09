@@ -315,7 +315,7 @@ export class Api {
         roid: roid,
         schema: "ifc2x3tc1" // < TODO: Deduce automatically
       }).then((data) => {
-        resolve(new viewControl(data, bimSurfer, this.MetaDataRenderer))
+        resolve(new viewControl(data, bimSurfer, this.MetaDataRenderer,roid))
       }).catch((err) => {
         reject(err)
       })

@@ -5,11 +5,13 @@ export class viewControl {
   private model
   private modelSelectListener: Array<Function> = []
   private MetaDataRenderer
+  private roid
 
-  constructor(model, bimSurfer, MetaDataRenderer) {
+  constructor(model, bimSurfer, MetaDataRenderer, roid) {
     this.bimSurfer = bimSurfer
     this.model = model
     this.MetaDataRenderer = MetaDataRenderer
+    this.roid = roid
     this.bimSurfer.on("selection-changed", (selected) => {
 
       for (let c in this.modelSelectListener) {
@@ -32,6 +34,12 @@ export class viewControl {
 
   public getbBimSurfer = () => {
     return this.bimSurfer
+  }
+
+  public showModelTree = (tree, dom, firstNoPadding?) => {
+    let m = new window['ModelTreeView'](tree, dom, this.bimSurfer, this.roid, firstNoPadding)
+    m.show()
+    return m
   }
 
   // public getMetaDataSelected = () => {

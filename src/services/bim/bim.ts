@@ -49,7 +49,7 @@ export class Bim {
     })
     let lib1 = new Promise((resolve, reject) => {
       try {
-        this.loadScripts(this.localLibPrefix + this.localLibHost, ['touch.js', 'require.js', 'xeogl.js', 'tree.js']).then(() => {
+        this.loadScriptsSync(this.localLibPrefix + this.localLibHost, ['touch.js', 'require.js', 'xeogl.js', 'tree.js']).then(() => {
           resolve()
         }).catch((err) => {
           reject(err)
@@ -169,6 +169,26 @@ export class Bim {
       script.src = url;
       document.getElementsByTagName("head")[0].appendChild(script);
     })
+  }
+
+  private loadScriptsSync = (baseAddress = '', filenames, timeout?) => {
+    return new Promise((resolve, reject) => {
+      let counter = filenames.length;
+      let index = 0
+
+      let recursive = () => {
+        if (index < counter)
+          this.loadScript(baseAddress + filenames[index++], timeout).then(() => {
+            recursive()
+          }).catch((err) => {
+            reject(err)
+          })
+        else
+          resolve()
+      }
+      recursive()
+    })
+
   }
 
   private loadScripts = (baseAddress = '', filenames, timeout?) => {
