@@ -7,16 +7,16 @@ var ModelTreeView = (function () {
     this.prefixSize = "20px 20px"
     this.paddingLeft = '10px'
     this.margin = '3px'
-    this.fontSize = '20px'
+    this.fontSize = '12px'
     this.lineHeight = '20px'
-    this.hideImage = "url('assets/bimsurfer/images/hide.jpg')"
-    this.showImage = "url('assets/bimsurfer/images/show.jpg')"
-    this.seeImage = "url('assets/bimsurfer/images/see.jpg')"
+    this.hideImage = "url('assets/bimsurfer/images/Right.png')"
+    this.showImage = "url('assets/bimsurfer/images/Down.png')"
+    // this.seeImage = "url('assets/bimsurfer/images/see.jpg')"
     this.selectedColor = 'blue'
     this.deselectedColor = ''
-    this.eyeleft = '20px'
+    this.eyeleft = '5px'
     this._visibleValue = [true, false]
-    this._eyesrc = ["assets/bimsurfer/images/see.jpg", "assets/bimsurfer/images/null.jpg"]
+    this._eyesrc = ["assets/bimsurfer/images/view.png", "assets/bimsurfer/images/hide.png"]
     this.scrollbarheight = 27
 
     this.setvisiblevalues = function (visibleValue, src) {
@@ -76,7 +76,7 @@ var ModelTreeView = (function () {
 
         div1.style.position = 'relative'
         div1.style.left = _this.eyeleft
-        div1.style.verticalAlign = 'sub'
+        div1.style.verticalAlign = 'bottom'
         span.setAttribute('skip', 'true')
         div0.setAttribute('skip', 'true')
         div1.setAttribute('skip', 'true')
@@ -239,14 +239,14 @@ var ModelTreeView = (function () {
       while (_dom) {
         if (_dom.getAttribute('skip') != 'true') {
           _this._cleanSelected(_dom)
-          _dom.style.backgroundColor = _this.deselectedColor
+          _dom.style.color = _this.deselectedColor
         }
         _dom = _dom.nextElementSibling
       }
     }
 
     this._select = function (_dom) {
-      _dom.style.backgroundColor = _this.selectedColor
+      _dom.style.color = _this.selectedColor
       var data = JSON.parse(_dom.getAttribute('data'))
       data.selected = true
       _dom.setAttribute('data', JSON.stringify(data))

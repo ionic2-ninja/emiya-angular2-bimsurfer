@@ -34,7 +34,7 @@ export class viewControl {
     }
   }
 
-  public getSnapshot = (offsetx?, offsety?, width?, height?, bgcolor?, format?, quality?, timeout?) => {
+  public getSnapshot = (offsetx?, offsety?, width?, height?, bgcolor?, format?, quality?, name?, timeout?) => {
     return new Promise((resolve, reject) => {
       try {
         let dom = this.getCanvas()
@@ -52,6 +52,9 @@ export class viewControl {
 
         if (quality === void 0)
           quality = 1
+
+        if (name === void 0)
+          name = this.poid + '#' + this.roid
 
 
         offsetx = (offsetx === void 0) ? 0 : offsetx
@@ -110,7 +113,7 @@ export class viewControl {
             clearTimeout(timer)
             timer = null
           }
-          resolve({base64: code, width: width, height: height, name: this.poid + '#' + this.roid, format: format})
+          resolve({base64: code, width: width, height: height, name: name, format: format})
         }
         img.onerror = (err) => {
           if (timer) {
@@ -128,8 +131,8 @@ export class viewControl {
 
   }
 
-  public downloadSnapshot(offsetx?, offsety?, width?, height?, bgcolor?, format?, quality?, timeout?) {
-    let c = this.getSnapshot(offsetx, offsety, width, height, bgcolor, format, quality, timeout)
+  public downloadSnapshot(offsetx?, offsety?, width?, height?, bgcolor?, format?, quality?, name?, timeout?) {
+    let c = this.getSnapshot(offsetx, offsety, width, height, bgcolor, format, quality, name, timeout)
     c.then((ev) => {
       let a = document.createElement('a');
       a['href'] = ev['base64'];
