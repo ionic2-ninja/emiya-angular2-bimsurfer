@@ -34,14 +34,18 @@ export class viewControl {
     }
   }
 
-  public getSnapshot = (offsetx?, offsety?, width?, height?, bgcolor?, quality?, timeout?) => {
+  public getSnapshot = (offsetx?, offsety?, width?, height?, bgcolor?, format?, quality?, timeout?) => {
     return new Promise((resolve, reject) => {
       try {
         let dom = this.getCanvas()
         if (!dom)
           return
         let w = dom['width'], h = dom['height']
-        let code = dom['toDataURL']("image/png", quality)
+
+        if (format === void 0)
+          format = 'png'
+
+        let code = dom['toDataURL']("image/" + format, quality)
 
         if (bgcolor === void 0)
           bgcolor = 'white'
@@ -101,12 +105,12 @@ export class viewControl {
             context.fillRect(0, 0, width, height)
           }
           context.drawImage(img, -offsetx, -offsety)
-          code = _canvas.toDataURL("image/png", 1)
+          code = _canvas.toDataURL("image/" + format, 1)
           if (timer) {
             clearTimeout(timer)
             timer = null
           }
-          resolve({base64: code, width: width, height: height, name: this.poid + '#' + this.roid})
+          resolve({base64: code, width: width, height: height, name: this.poid + '#' + this.roid, format: format})
         }
         img.onerror = (err) => {
           if (timer) {
@@ -124,8 +128,8 @@ export class viewControl {
 
   }
 
-  public downloadSnapshot(offsetx?, offsety?, width?, height?, bgcolor?, quality?, timeout?) {
-    let c = this.getSnapshot(offsetx, offsety, width, height, bgcolor, quality, timeout)
+  public downloadSnapshot(offsetx?, offsety?, width?, height?, bgcolor?, format?, quality?, timeout?) {
+    let c = this.getSnapshot(offsetx, offsety, width, height, bgcolor, format, quality, timeout)
     c.then((ev) => {
       let a = document.createElement('a');
       a['href'] = ev['base64'];
