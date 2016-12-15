@@ -5,19 +5,136 @@ export class viewControl {
   private model
   private modelSelectListener: Array<Function> = []
   private MetaDataRenderer
+  private poid
   private roid
+  private id
 
-  constructor(model, bimSurfer, MetaDataRenderer, roid) {
+  constructor(model, bimSurfer, MetaDataRenderer, poid, roid, id) {
     this.bimSurfer = bimSurfer
     this.model = model
     this.MetaDataRenderer = MetaDataRenderer
+    this.poid = poid
     this.roid = roid
+    this.id = id
     this.bimSurfer.on("selection-changed", (selected) => {
 
       for (let c in this.modelSelectListener) {
         this.modelSelectListener[c] && this.modelSelectListener[c](selected)
       }
     });
+  }
+
+  public getCanvas = () => {
+
+    let nodes = document.getElementById(this.id).childNodes
+    for (let c = nodes.length - 1; c >= 0; --c) {
+
+      if (nodes[c]['tagName'].toLowerCase() == 'canvas')
+        return nodes[c]
+    }
+  }
+
+  public getSnapshot = (offsetx?, offsety?, width?, height?, bgcolor?, quality?, timeout?) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let dom = this.getCanvas()
+        if (!dom)
+          return
+        let w = dom['width'], h = dom['height']
+        let code = dom['toDataURL']("image/png", quality)
+
+        if (bgcolor === void 0)
+          bgcolor = 'white'
+
+        if (quality === void 0)
+          quality = 1
+
+
+        offsetx = (offsetx === void 0) ? 0 : offsetx
+        offsety = (offsety === void 0) ? 0 : offsety
+
+
+        if (typeof offsetx == 'string' && offsetx.indexOf('%') >= 0) {
+
+          offsetx = parseFloat(Utils.replaceAll(offsetx, '%', '')) * w / 100
+        } else if (typeof offsetx == 'string') {
+          offsetx = parseFloat(offsetx)
+        }
+        if (typeof offsety == 'string' && offsety.indexOf('%') >= 0) {
+          offsety = parseFloat(Utils.replaceAll(offsety, '%', '')) * h / 100
+        } else if (typeof offsety == 'string') {
+          offsety = parseFloat(offsety)
+        }
+        width = (width === void 0) ? (w - offsetx) : width
+        height = (height === void 0) ? (h - offsety) : height
+        if (typeof width == 'string' && width.indexOf('%') >= 0) {
+          width = parseFloat(Utils.replaceAll(width, '%', '')) * w / 100
+        } else if (typeof width == 'string') {
+          width = parseFloat(width)
+        }
+        if (typeof height == 'string' && height.indexOf('%') >= 0) {
+          height = parseFloat(Utils.replaceAll(height, '%', '')) * h / 100
+        } else if (typeof height == 'string') {
+          height = parseFloat(height)
+        }
+
+        let _canvas = document.createElement('canvas')
+        _canvas.width = width
+        _canvas.height = height
+        let img = new Image()
+        img.src = code
+        img.style.height = h + 'px'
+        img.style.width = w + 'px'
+
+        let timer
+        timeout = (timeout === void 0 ? 30000 : timeout)
+        if (timeout > 0)
+          timer = setTimeout(() => {
+            reject('timeout')
+            timer = null
+          }, timeout)
+
+        img.onload = () => {
+          let context = _canvas.getContext('2d');
+          if (bgcolor != null && bgcolor.trim() != '') {
+            context.fillStyle = "white"
+            context.fillRect(0, 0, width, height)
+          }
+          context.drawImage(img, -offsetx, -offsety)
+          code = _canvas.toDataURL("image/png", 1)
+          if (timer) {
+            clearTimeout(timer)
+            timer = null
+          }
+          resolve({base64: code, width: width, height: height, name: this.poid + '#' + this.roid})
+        }
+        img.onerror = (err) => {
+          if (timer) {
+            clearTimeout(timer)
+            timer = null
+          }
+          reject(err)
+        }
+
+
+      } catch (e) {
+        reject(e)
+      }
+    })
+
+  }
+
+  public downloadSnapshot(offsetx?, offsety?, width?, height?, bgcolor?, quality?, timeout?) {
+    let c = this.getSnapshot(offsetx, offsety, width, height, bgcolor, quality, timeout)
+    c.then((ev) => {
+      let a = document.createElement('a');
+      a['href'] = ev['base64'];
+      a.download = ev['name'];
+      a.click();
+    })
+
+    return c
+
   }
 
   public getModel = () => {

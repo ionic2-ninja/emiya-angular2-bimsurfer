@@ -15146,7 +15146,7 @@ var Canvas2Image = (function () {
        */
       this.contextAttr = cfg.contextAttr || {};
       this.contextAttr.alpha = this.transparent;
-      this.contextAttr.preserveDrawingBuffer = false;
+      this.contextAttr.preserveDrawingBuffer = true;
 
       if (!cfg.canvas) {
 

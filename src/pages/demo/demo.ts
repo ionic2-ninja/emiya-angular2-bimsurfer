@@ -3,6 +3,7 @@ import {Bim} from '../../services/bim/bim'
 import {NavController, NavParams} from 'ionic-angular';
 import {Token} from 'emiya-angular2-token'
 import {Router} from 'emiya-ionic2-router'
+import set = Reflect.set;
 
 @Component({
   templateUrl: 'demo.html'
@@ -12,6 +13,7 @@ export class DemoPage implements AfterViewInit {
   bust = ''
   title = this.navParams.data.name
   private instance = this.bim.getInstance()
+  private ev
 
   constructor(public navCtrl: NavController, private bim: Bim, private navParams: NavParams, private router: Router) {
     console.log(navParams)
@@ -22,6 +24,16 @@ export class DemoPage implements AfterViewInit {
     // },2000)
   }
 
+  snapshot() {
+    //console.log(this.ev.getSnapshot())
+    this.ev.downloadSnapshot('0%','0%','50%','50%','').then((ev) => {
+      document.getElementById('sp').style.height=ev.height+'px'
+      document.getElementById('sp').style.width=ev.width+'px'
+      document.getElementById('sp')['src'] = ev.base64
+    })
+
+  }
+
   ngAfterViewInit() {
     //All my document ready code here, which doesn't work
 
@@ -30,7 +42,10 @@ export class DemoPage implements AfterViewInit {
         this.bim.connect(decodeURIComponent(Token.get('bimAddress')), decodeURIComponent(Token.get('bimToken')), '').then((instance) => {
           this.instance = instance
           this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
+            this.ev = ev
             this.show(ev)
+
+
             setTimeout(() => {
               ev.getAttributes('9371822', (w, b, c) => {
                 console.log(122222222233, w + '/' + b)
@@ -53,6 +68,7 @@ export class DemoPage implements AfterViewInit {
       setTimeout(() => {
         this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
           this.show(ev)
+          console.log(ev.getCanvas())
           setTimeout(() => {
             ev.getAttributes('9371822', (w, b, c) => {
               console.log(122222222233, w + '/' + b)
