@@ -27,7 +27,7 @@ export class DemoPage implements AfterViewInit {
   snapshot() {
     //console.log(this.ev.getSnapshot())
     this.ev.downloadSnapshot('0%', '0%', '50%', '50%', '', undefined).then((ev) => {
-      console.log(ev)
+       console.log(ev)
       document.getElementById('sp').style.height = ev.height + 'px'
       document.getElementById('sp').style.width = ev.width + 'px'
       document.getElementById('sp')['src'] = ev.base64

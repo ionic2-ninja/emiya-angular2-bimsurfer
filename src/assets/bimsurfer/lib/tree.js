@@ -18,6 +18,47 @@ var ModelTreeView = (function () {
     this._visibleValue = [true, false]
     this._eyesrc = ["assets/bimsurfer/images/view.png", "assets/bimsurfer/images/hide.png"]
     this.scrollbarheight = 27
+    this._last_keyword = ''
+
+    this.notBlankStr = function (value) {
+      if (typeof value == 'undefined')
+        return false;
+      if (value == null)
+        return false;
+      if (value === '')
+        return false;
+      if (typeof value == 'string' && value.trim() === '')
+        return false;
+      return true;
+    }
+
+    this.deepCopy = function (source) {
+      if (!_this.notBlankStr(source))
+        return source;
+      var result
+      if (source instanceof Array) {
+        result = [];
+        for (var key in source) {
+          result.push((_this.notBlankStr(source[key]) && typeof source[key] === 'object' && ((source[key] instanceof Array) || source[key].toString() == '[object Object]')) ? _this.deepCopy(source[key]) : source[key]);
+        }
+      }
+      else if (typeof source === 'object' && source.toString() != '[object Object]') {
+        return source;
+      }
+      else if (typeof source === 'object') {
+
+        result = {};
+        for (var key in source) {
+          result[key] = (_this.notBlankStr(source[key]) && typeof source[key] === 'object' && ((source[key] instanceof Array) || source[key].toString() == '[object Object]')) ? _this.deepCopy(source[key]) : source[key];
+        }
+      }
+      else
+        return source;
+      return result;
+    }
+
+    this._projects = this.deepCopy(projects)
+    this._raw_projects = this.deepCopy(projects)
 
     this.setvisiblevalues = function (visibleValue, src) {
       _this._visibleValue = visibleValue
@@ -221,9 +262,111 @@ var ModelTreeView = (function () {
       }
     }
 
+
     this.show = function () {
-      _this._showTree(projects, dom, firstNoPaddingLeft)
+      if (this.parentdom)
+        this.parentdom.innerHTML = ''
+      this.parentdom = undefined
+      this.treedom = undefined
+      _this._showTree(_this._projects, dom, firstNoPaddingLeft)
     }
+
+    this.filter = function (keyword, caseSensitive, exclude, updatedom) {
+      if (keyword == void 0 || keyword == '') {
+        if (_this._last_keyword !== keyword) {
+          _this._projects = _this.deepCopy(_this._raw_projects)
+          if (updatedom != false)
+            _this.show()
+          _this._last_keyword = keyword
+        }
+        return _this._projects
+      } else {
+        if (_this._last_keyword !== keyword) {
+          _this._projects = _this._filter(keyword, _this.deepCopy(_this._raw_projects), caseSensitive, exclude)
+          if (updatedom != false)
+            _this.show()
+          _this._last_keyword = keyword
+        }
+        return _this._projects
+      }
+    }
+
+    this._filter = function (keyword, project, caseSensitive, exclude) {
+      if (project instanceof Array) {
+        for (var c in project) {
+          if (project[c].children && project[c].children.length > 0) {
+            if (_this._filter(keyword, project[c].children, caseSensitive, exclude) == null) {
+              delete project[c]
+            }
+          } else {
+
+            if (caseSensitive == true) {
+              if (exclude == true) {
+                if (project[c].name.indexOf(keyword) >= 0) {
+                  delete project[c]
+                }
+              }
+              else if (project[c].name.indexOf(keyword) < 0) {
+                delete project[c]
+              }
+
+            } else {
+              if (exclude == true) {
+                if (project[c].name.toLowerCase().indexOf(keyword != null ? keyword.toLowerCase() : keyword) >= 0) {
+                  delete project[c]
+                }
+              }
+              else if (project[c].name.toLowerCase().indexOf(keyword != null ? keyword.toLowerCase() : keyword) < 0) {
+                delete project[c]
+              }
+            }
+          }
+        }
+        //console.log(project)
+
+        var num = 0
+        for (var c in project) {
+          ++num
+        }
+        if (num == 0)
+          return null
+        else
+          return project
+      }
+      else if (project.children) {
+        if (_this._filter(keyword, project.children, caseSensitive, exclude) == null)
+          return null
+        else
+          return project
+      }
+      else {
+        if (caseSensitive == true) {
+          if (exclude == true) {
+            if (project.name.indexOf(keyword) >= 0) {
+              return null
+            }
+          }
+          else if (project.name.indexOf(keyword) < 0) {
+            return null
+          }
+        } else {
+          if (caseSensitive == true) {
+            if (project.name.toLowerCase().indexOf(keyword != null ? keyword.toLowerCase() : keyword) >= 0) {
+              return null
+            }
+          } else if (project.name.toLowerCase().indexOf(keyword != null ? keyword.toLowerCase() : keyword) < 0) {
+            return null
+          }
+        }
+        return project
+      }
+
+    }
+
+    // setTimeout(function () {
+    //   console.log(_this.filter('123', undefined, false,true))
+    // })
+
 
     this._clickCallbacks = []
 
@@ -341,8 +484,8 @@ var ModelTreeView = (function () {
         var unith = _dom.offsetHeight
         var offsetlow = (coords.y + unith) - (windowh)
         var offsethigh = -coords.y
-        console.log(coords.y)
-        console.log(offsethigh)
+        //console.log(coords.y)
+        //console.log(offsethigh)
         if (offsethigh > 0) {
           _this.parentdom.scrollTop = (_this.parentdom.scrollTop - offsethigh)
         } else if (offsetlow > 0) {
