@@ -19,6 +19,7 @@ var ModelTreeView = (function () {
     this._eyesrc = ["assets/bimsurfer/images/view.png", "assets/bimsurfer/images/hide.png"]
     this.scrollbarheight = 27
     this._last_keyword = ''
+    this._modelstatus = {}
 
     this.notBlankStr = function (value) {
       if (typeof value == 'undefined')
@@ -111,7 +112,6 @@ var ModelTreeView = (function () {
         div0.style.display = 'inline'
         div0.style.position = 'relative'
         div1.style.display = 'inline'
-        div1.src = _this._eyesrc[0]
         div1.style.height = this.lineHeight
         div1.style.width = this.lineHeight
 
@@ -131,10 +131,28 @@ var ModelTreeView = (function () {
         sub.style.lineHeight = this.lineHeight
         //sub.style.height = this.lineHeight
         //sub.innerText = projects[c].name
+
+        var selected = (_this._modelstatus[projects[c].id] && _this._modelstatus[projects[c].id].selected != null) ? _this._modelstatus[projects[c].id].selected : false
+        var display = (_this._modelstatus[projects[c].id] && _this._modelstatus[projects[c].id].visible != null) ? _this._modelstatus[projects[c].id].visible : _this._visibleValue[0]
+
+        this._visibleValue = [true, false]
+        this._eyesrc = ["assets/bimsurfer/images/view.png", "assets/bimsurfer/images/hide.png"]
+
+        var flag = false
+        for (var d in _this._visibleValue) {
+          if (_this._visibleValue[d] === display) {
+            div1.src = _this._eyesrc[d]
+            flag = true
+          }
+        }
+
+        if (flag == false)
+          div1.src = _this._eyesrc[0]
+
         sub.setAttribute('data', JSON.stringify({
           id: projects[c].id,
-          selected: false,
-          display: true,
+          selected: selected,
+          display: display,
           shrink: false
         }))
         sub.style.whiteSpace = 'nowrap'
@@ -162,6 +180,8 @@ var ModelTreeView = (function () {
                 });
               }
               for (var c in result.children) {
+                _this._setmodelclickstatus(result.children[c].id, false)
+                _this._setmodelvisiblestatus(result.children[c].id, result.visible)
                 ids.push(roid + ':' + result.children[c].id)
               }
               bimSurfer.setVisibility({ids: ids, visible: result.visible})
@@ -214,6 +234,10 @@ var ModelTreeView = (function () {
           sub.style.backgroundImage = this.seeImage
           sub.style.backgroundRepeat = "no-repeat"
           sub.style.backgroundPosition = "0 0";
+
+          if (selected)
+            _this._select(sub);
+
           (function (obj, sub, img) {
             img.onclick = function (ev) {
               ev.stopPropagation()
@@ -221,6 +245,7 @@ var ModelTreeView = (function () {
               result = _this._getallchildren(sub, img)
               var ids = []
               for (var c in result.children) {
+                _this._setmodelvisiblestatus(result.children[c].id, result.visible)
                 ids.push(roid + ':' + result.children[c].id)
               }
               bimSurfer.setVisibility({ids: ids, visible: result.visible})
@@ -251,6 +276,7 @@ var ModelTreeView = (function () {
               if (!ev || ev.clean) {
                 _this._cleanSelected(_this.treedom)
               }
+              _this._setmodelclickstatus(data.id, ev.clean)
               _this._select(sub)
             };
           })(projects[c], sub, div1);
@@ -322,6 +348,8 @@ var ModelTreeView = (function () {
             }
           }
         }
+
+
         //console.log(project)
 
         var num = 0
@@ -465,6 +493,33 @@ var ModelTreeView = (function () {
       return {children: pipe, visible: visible, src: src}
     }
 
+    this._setmodelclickstatus = function (id, clean) {
+      if (clean === void 0)
+        clean = true
+      if (clean) {
+        for (var c in _this._modelstatus) {
+          _this._modelstatus[c].selected = false
+        }
+      }
+
+      if (!_this._modelstatus[id]) {
+        _this._modelstatus[id] = {}
+      }
+
+      _this._modelstatus[id].selected = true
+
+    }
+
+    this._setmodelvisiblestatus = function (id, visible) {
+
+      if (!_this._modelstatus[id]) {
+        _this._modelstatus[id] = {}
+      }
+
+      _this._modelstatus[id].visible = visible
+
+    }
+
 //21233944
     this.select = function (id, clean) {
       if (clean === void 0)
@@ -479,6 +534,7 @@ var ModelTreeView = (function () {
       // console.log(_dom.offsetParent)
       // console.log(_dom.offsetY)
       if (_dom) {
+        _this._setmodelclickstatus(id, clean)
         var coords = _this._getElementXY(_dom, _this.parentdom)
         var windowh = _this.parentdom.offsetHeight
         var unith = _dom.offsetHeight
@@ -515,6 +571,7 @@ var ModelTreeView = (function () {
       if (!_dom)
         return
       if (_dom.onclick) {
+        _this._setmodelclickstatus(id, clean)
         ++_this._skipcount
         _dom.onclick({clean: clean})
       }
@@ -614,7 +671,13 @@ var ModelTreeView = (function () {
 
     this._skipcount = 0
 
+    this.destroy = function () {
+      this._skipcount = null
+    }
+
     bimSurfer.on("selection-changed", function (selected) {
+      if (_this._skipcount === null)
+        return
       if (_this._skipcount > 0) {
         --_this._skipcount
         return

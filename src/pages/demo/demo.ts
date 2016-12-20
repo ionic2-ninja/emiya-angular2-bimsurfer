@@ -3,7 +3,7 @@ import {Bim} from '../../services/bim/bim'
 import {NavController, NavParams} from 'ionic-angular';
 import {Token} from 'emiya-angular2-token'
 import {Router} from 'emiya-ionic2-router'
-import set = Reflect.set;
+
 
 @Component({
   templateUrl: 'demo.html'
@@ -26,8 +26,8 @@ export class DemoPage implements AfterViewInit {
 
   snapshot() {
     //console.log(this.ev.getSnapshot())
-    this.ev.downloadSnapshot('0%', '0%', '50%', '50%', '', undefined).then((ev) => {
-       console.log(ev)
+    this.ev.downloadSnapshot().then((ev) => {
+      console.log(ev)
       document.getElementById('sp').style.height = ev.height + 'px'
       document.getElementById('sp').style.width = ev.width + 'px'
       document.getElementById('sp')['src'] = ev.base64
@@ -47,11 +47,11 @@ export class DemoPage implements AfterViewInit {
             this.show(ev)
 
 
-            setTimeout(() => {
-              ev.getAttributes('9371822', (w, b, c) => {
-                console.log(122222222233, w + '/' + b)
-              })
-            }, 2000)
+            // setTimeout(() => {
+            //   ev.getAttributes('9371822', (w, b, c) => {
+            //     console.log(122222222233, w + '/' + b)
+            //   })
+            // }, 2000)
 
           })
 
@@ -66,18 +66,19 @@ export class DemoPage implements AfterViewInit {
       }
     } else {
       //this.instance.showDemo(this.navParams.data.poid, this.navParams.data.roid, '')
-      setTimeout(() => {
-        this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
-          this.show(ev)
-          console.log(ev.getCanvas())
-          setTimeout(() => {
-            ev.getAttributes('9371822', (w, b, c) => {
-              console.log(122222222233, w + '/' + b)
-            })
-          }, 2000)
 
-        })
-      }, 2000)
+      this.instance.loadModel(this.navParams.data.poid, this.navParams.data.roid, 'viewerContainer').then((ev) => {
+        this.ev = ev
+        this.show(ev)
+        // console.log(ev.getCanvas())
+        // setTimeout(() => {
+        //   ev.getAttributes('9371822', (w, b, c) => {
+        //     console.log(122222222233, w + '/' + b)
+        //   })
+        // }, 2000)
+
+      })
+
 
     }
   }

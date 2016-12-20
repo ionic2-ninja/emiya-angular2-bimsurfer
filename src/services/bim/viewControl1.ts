@@ -17,7 +17,7 @@ export class viewControl {
     this.roid = roid
     this.id = id
 
-
+    // let level
     // console.log(bimSurfer)
     // console.log(model)
     // document.addEventListener('mousemove',()=>{
@@ -26,32 +26,46 @@ export class viewControl {
     // })
 
 
-    if (1 - 2 == 2)
-      setTimeout(() => {
-        // for (var e in model.model.loadedTypes['IfcSlab'])
-        //   console.log(model.model.loadedTypes['IfcSlab'][e].getGeometry((ev) => {
-        //     console.log(ev)
-        //   }))
-        console.log(model.model.loadedTypes['IfcSlab'])
-        for (let c in model.model.loadedTypes) {
-          //console.log(data.model.loadedTypes[c])
-          for (let d in model.model.loadedTypes[c]) {
-            //console.log(d)
-            if (d == '118883085') {
-              model.model.loadedTypes['IfcSlab'][d].getGeometry((ev) => {
-                //console.log(ev.object)
-                //level = ev.object._eminBounds.z
-                //this.setColor([this.roid + ':' + d], {r: 1, g: 1, b: 1, a: 1})
-                //let cam=bimSurfer.getCamera()
-                //cam.eye=[cam.target[0],cam.target[1],150]
-                // cam.target=[0,0,0]
-                //bimSurfer.setCamera(cam)
-                this.hideByHeight(ev.object._eminBounds.z)
-              })
-            }
-          }
-        }
-      }, 10000)
+    // let hide = () => {
+    //   for (let c in model.model.loadedTypes) {
+    //     for (let d in model.model.loadedTypes[c]) {
+    //       //console.log(model.model.loadedTypes[c][d])
+    //
+    //       model.model.loadedTypes[c][d].getGeometry && model.model.loadedTypes[c][d].getGeometry((ev) => {
+    //
+    //         if (ev && level <= ev.object._eminBounds.z) {
+    //           this.setVisibility([roid + ':' + d], false)
+    //         }
+    //       })
+    //     }
+    //   }
+    // }
+
+    // setTimeout(() => {
+    //   // for (var e in model.model.loadedTypes['IfcSlab'])
+    //   //   console.log(model.model.loadedTypes['IfcSlab'][e].getGeometry((ev) => {
+    //   //     console.log(ev)
+    //   //   }))
+    //   console.log(model.model.loadedTypes['IfcSlab'])
+    //   for (let c in model.model.loadedTypes) {
+    //     //console.log(data.model.loadedTypes[c])
+    //     for (let d in model.model.loadedTypes[c]) {
+    //       //console.log(d)
+    //       if (d == '4719315') {
+    //         model.model.loadedTypes['IfcSlab'][d].getGeometry((ev) => {
+    //           //console.log(ev.object)
+    //           level = ev.object._eminBounds.z
+    //           this.setColor([this.roid + ':' + d], {r: 1, g: 1, b: 1, a: 1})
+    //           let cam=bimSurfer.getCamera()
+    //           cam.eye=[cam.target[0],cam.target[1],150]
+    //           // cam.target=[0,0,0]
+    //           bimSurfer.setCamera(cam)
+    //           hide()
+    //         })
+    //       }
+    //     }
+    //   }
+    // }, 2000)
 
     this.bimSurfer.on("selection-changed", (selected) => {
 
@@ -59,25 +73,6 @@ export class viewControl {
         this.modelSelectListener[c] && this.modelSelectListener[c](selected)
       }
     });
-  }
-
-  public getLayers = () => {
-    return this.model.model.loadedTypes['IfcSlab']
-  }
-
-  public hideByHeight = (height) => {
-    for (let c in this.model.model.loadedTypes) {
-      for (let d in this.model.model.loadedTypes[c]) {
-        //console.log(model.model.loadedTypes[c][d])
-
-        this.model.model.loadedTypes[c][d].getGeometry && this.model.model.loadedTypes[c][d].getGeometry((ev) => {
-
-          if (ev && height <= ev.object._eminBounds.z) {
-            this.setVisibility([this.roid + ':' + d], false)
-          }
-        })
-      }
-    }
   }
 
 
@@ -228,14 +223,6 @@ export class viewControl {
   //     domNode: 'dataContainer' + bust
   //   });
   // }
-
-  public getCamera = () => {
-    return this.bimSurfer.getCamera()
-  }
-
-  public setCamera = (param) => {
-    return this.bimSurfer.setCamera(param)
-  }
 
   public getTree = () => {
     return this.model.getTree()
